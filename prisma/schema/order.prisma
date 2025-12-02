@@ -1,0 +1,30 @@
+model Order {
+  id              String        @id @default(uuid())
+  customerId      String
+  vendorId        String
+  deliveryAddress String?
+  totalPrice      Float
+ 
+  transactionId   String        @unique
+  orderDetails    OrderDetail[]
+
+  customer Customer @relation(fields: [customerId], references: [id])
+  vendor   Vendor   @relation(fields: [vendorId], references: [id])
+
+  @@map("orders")
+}
+
+
+
+model OrderDetail {
+  id           String @id @default(uuid())
+  orderId      String
+  productId    String
+  quantity     Int
+  pricePerUnit Float
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("orderDetails")
+}

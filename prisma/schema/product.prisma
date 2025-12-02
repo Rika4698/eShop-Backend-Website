@@ -1,0 +1,31 @@
+model Product {
+  id                String              @id @default(uuid())
+  name              String
+  image             String[]
+  price             Float
+  stockQuantity     Int
+  description       String
+  flashSale         Boolean?            @default(false)
+  discount          Float?              @default(0)
+  isDeleted         Boolean             @default(false)
+  categoryId        String?
+  vendorId          String
+  orderDetails      OrderDetail[]
+ 
+  category          Category?           @relation(fields: [categoryId], references: [id])
+  vendor            Vendor              @relation(fields: [vendorId], references: [id])
+
+  @@map("products")
+}
+
+
+model Category {
+  id        String    @id @default(uuid())
+  label     String
+  name      String    @unique
+  image     String
+  isDeleted Boolean   @default(false)
+  products  Product[]
+
+  @@map("categories")
+}
