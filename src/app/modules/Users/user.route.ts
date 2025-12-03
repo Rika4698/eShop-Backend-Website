@@ -9,6 +9,18 @@ router.post('/create-admin',validateRequest(userValidation.createUser),userContr
 );
 
 
+router.post(
+  '/create-vendor',
+  validateRequest(userValidation.createUser),
+  userController.createVendor,
+);
+
+router.post(
+  '/create-customer',
+  validateRequest(userValidation.createUser),
+  userController.createCustomer,
+);
+
 
 
 export const UserRoutes = router;
