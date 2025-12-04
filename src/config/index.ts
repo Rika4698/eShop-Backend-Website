@@ -10,4 +10,9 @@ export default {
   JWT_ACCESS_EXPIRES: process.env.JWT_ACCESS_EXPIRES,
   JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET,
   JWT_REFRESH_EXPIRES: process.env.JWT_REFRESH_EXPIRES,
+  RESET_PASS_UI_LINK:process.env.RESET_PASS_UI_LINK,
+  emailSender: {
+        EMAIL: process.env.EMAIL,
+        APP_PASS: process.env.APP_PASS
+    },
 };

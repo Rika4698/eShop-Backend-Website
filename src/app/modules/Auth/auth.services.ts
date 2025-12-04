@@ -4,10 +4,11 @@ import { UserStatus } from "@prisma/client";
 import AppError from "../../errors/appError";
 import { StatusCodes } from "http-status-codes";
 import bcrypt from 'bcryptjs';
-import { createToken } from "../../utils/jwt";
+import { createToken, verifyToken } from "../../utils/jwt";
 import config from '../../../config';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { IAuthUser } from "../Users/user.interface";
+import { sendEmail } from "../../utils/sendEmail";
 
 
 const loginUser = async (payload: TLoginUser) => {
@@ -140,12 +141,94 @@ const changePassword = async (
 
 
 
+const forgotPassword = async (payload: { email: string }) => {
+  // console.log("REQ BODY =>", payload);
+
+  if (!payload || !payload.email) {
+    throw new AppError(StatusCodes.BAD_REQUEST, "Email is required!");
+  }
+
+  const userData = await prisma.user.findUnique({
+    where: {
+      email: payload.email,
+    },
+  });
+
+  if (!userData || userData.status !== UserStatus.ACTIVE) {
+    throw new AppError(StatusCodes.BAD_REQUEST, "User doesn't exist or inactive!");
+  }
+
+  const jwtPayload = {
+    id: userData.id,
+    email: userData.email,
+    role: userData.role,
+  };
+  console.log(userData.email);
+
+  const resetToken = createToken(
+    jwtPayload,
+    config.JWT_ACCESS_SECRET as string,
+    '20m',
+  );
+
+  const resetUILink = `${config.RESET_PASS_UI_LINK}?email=${userData.email}&token=${resetToken} `;
+
+  await sendEmail(userData?.email, resetUILink);
+};
+
+
+
+const resetPassword = async (
+  payload: { email: string; newPassword: string },
+  token: string,
+) => {
+  // console.log({ token, payload });
+
+  const userData = await prisma.user.findUnique({
+    where: {
+      email: payload.email,
+      status: UserStatus.ACTIVE,
+    },
+  });
+
+  if (!userData) {
+    throw new AppError(StatusCodes.BAD_REQUEST, "User doesn't exist!");
+  }
+
+  const decoded = verifyToken(
+    token,
+    config.JWT_ACCESS_SECRET as string,
+  ) as JwtPayload;
+
+  const { email } = decoded;
+
+  if (payload?.email !== email) {
+    throw new AppError(StatusCodes.FORBIDDEN, 'You are forbidden!');
+  }
+  // hash password
+  const newHashedPassword = await bcrypt.hash(
+    payload.newPassword,
+    Number(config.BCRYPT_SALT_ROUND),
+  );
+
+  // update into database
+  await prisma.user.update({
+    where: {
+      email: payload.email,
+    },
+    data: {
+      password: newHashedPassword,
+    },
+  });
+};
 
 
 export const AuthServices = {
   loginUser,
   refreshToken,
   changePassword,
+  forgotPassword,
+  resetPassword
 
   
 };
