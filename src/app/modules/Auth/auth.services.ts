@@ -6,7 +6,7 @@ import { StatusCodes } from "http-status-codes";
 import bcrypt from 'bcryptjs';
 import { createToken } from "../../utils/jwt";
 import config from '../../../config';
-
+import jwt, { JwtPayload } from 'jsonwebtoken';
 
 
 const loginUser = async (payload: TLoginUser) => {
@@ -56,7 +56,39 @@ const loginUser = async (payload: TLoginUser) => {
   };
 };
 
+const refreshToken = async (token: string) => {
 
+  const decoded = jwt.verify(
+    token,
+    config.JWT_REFRESH_SECRET as string,
+  ) as JwtPayload;
+
+  const { email } = decoded;
+
+
+  const userData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: email,
+      status: UserStatus.ACTIVE,
+    },
+  });
+
+  const jwtPayload = {
+    id: userData.id,
+    email: userData.email,
+    role: userData.role,
+  };
+
+  const accessToken = createToken(
+    jwtPayload,
+    config.JWT_ACCESS_SECRET as string,
+    config.JWT_ACCESS_EXPIRES as string,
+  );
+
+  return {
+    accessToken,
+  };
+};
 
 
 
@@ -66,6 +98,7 @@ const loginUser = async (payload: TLoginUser) => {
 
 export const AuthServices = {
   loginUser,
+  refreshToken,
 
   
 };

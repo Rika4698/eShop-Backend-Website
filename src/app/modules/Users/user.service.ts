@@ -4,7 +4,6 @@ import prisma from "../../utils/prisma";
 import bcrypt from 'bcryptjs';
 import config from "../../../config";
 import { UserRole } from "@prisma/client";
-import { createToken } from "../../utils/jwt";
 
 
 
@@ -165,6 +164,7 @@ const createCustomer = async (payload: {
 
   return newUser;
 };
+
 
 
 
