@@ -2,6 +2,8 @@ import express from 'express';
 import validateRequest, { validateRequestCookies } from '../../middlewares/validateRequest';
 import { AuthValidation } from './auth.validation';
 import { AuthControllers } from './auth.controller';
+import auth from '../../middlewares/auth';
+import { UserRole } from '@prisma/client';
 
 
 
@@ -23,6 +25,15 @@ router.post(
   AuthControllers.refreshToken,
 );
 
-
+router.post(
+  '/change-password',auth(
+    UserRole.SUPER_ADMIN,
+    UserRole.ADMIN,
+    UserRole.CUSTOMER,
+    UserRole.VENDOR,
+  ),
+  validateRequest(AuthValidation.changePasswordValidationSchema),
+  AuthControllers.changePassword,
+);
 
 export const AuthRoutes = router;

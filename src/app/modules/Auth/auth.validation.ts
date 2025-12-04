@@ -18,9 +18,17 @@ const refreshTokenValidationSchema = z.object({
 });
 
 
+const changePasswordValidationSchema = z.object({
+
+    oldPassword: z.string({ error: 'New Password is required' }),
+    newPassword: z.string({ error: 'New Password is required' }).min(8, "Password must be at least 8 characters"),
+
+});
+
 
 export const AuthValidation = {
   loginValidationSchema,
   refreshTokenValidationSchema,
+  changePasswordValidationSchema
 
 };
