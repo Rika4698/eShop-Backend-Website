@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import nodemailer from 'nodemailer';
-import config from '../../config';
+import config from '../config';
 
 export const sendEmail = async (to: string, resetLink: string) => {
   const transporter = nodemailer.createTransport({

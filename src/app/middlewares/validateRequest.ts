@@ -9,7 +9,7 @@ const validateRequest = (schema: ZodSchema) => {
       next();
     } catch (error) {
       if (error instanceof ZodError) {
-        // Type assertion দিয়ে error.errors access করা
+     
         const zodErrors = (error as ZodError).issues.map((issue) => issue.message);
         return res.status(400).json({
           success: false,
@@ -28,7 +28,7 @@ export const validateRequestCookies = (schema: ZodObject<ZodRawShape>) => {
       cookies: req.cookies,
     });
 
-    req.cookies = parsedCookies.cookies;
+    req.cookies = parsedCookies.cookies as Record<string, any>;
 
     next();
   });

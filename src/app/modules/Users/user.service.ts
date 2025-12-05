@@ -2,7 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import AppError from "../../errors/appError";
 import prisma from "../../utils/prisma";
 import bcrypt from 'bcryptjs';
-import config from "../../../config";
+import config from "../../config";
 import { UserRole } from "@prisma/client";
 
 
@@ -164,7 +164,6 @@ const createCustomer = async (payload: {
 
   return newUser;
 };
-
 
 
 

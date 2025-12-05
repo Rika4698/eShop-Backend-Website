@@ -1,4 +1,4 @@
-import config from '../../../config';
+
 import catchAsync from "../../utils/catchAsync";
 import { userService } from "./user.service";
 import sendResponse from "../../utils/sendResponse";
@@ -18,6 +18,8 @@ const createAdmin = catchAsync(async (req, res) => {
 });
 
 
+
+
 const createVendor = catchAsync(async (req, res) => {
   const result = await userService.createVendor(req.body);
 
@@ -28,6 +30,8 @@ const createVendor = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
+
 
 const createCustomer = catchAsync(async (req, res) => {
   const result = await userService.createCustomer(req.body);

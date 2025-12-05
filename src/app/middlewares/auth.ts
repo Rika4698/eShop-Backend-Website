@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import AppError from '../errors/appError';
 import { verifyToken } from '../utils/jwt';
-import config from '../../config';
+import config from '../config';
 import { JwtPayload } from 'jsonwebtoken';
 import prisma from '../utils/prisma';
 import { UserStatus } from '@prisma/client';

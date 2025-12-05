@@ -1,5 +1,5 @@
 import { StatusCodes } from "http-status-codes";
-import config from "../../../config";
+import config from "../../config";
 import catchAsync from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import { AuthServices } from "./auth.services";
@@ -45,7 +45,7 @@ const refreshToken = catchAsync(async (req, res) => {
 
 
 
-const changePassword = catchAsync(async (req:Request & { user?: any }, res:Response) => {
+const changePassword = catchAsync(async (req:Request, res:Response) => {
   const user = req.user;
 
   const result = await AuthServices.changePassword(

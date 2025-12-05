@@ -5,7 +5,7 @@ import AppError from "../../errors/appError";
 import { StatusCodes } from "http-status-codes";
 import bcrypt from 'bcryptjs';
 import { createToken, verifyToken } from "../../utils/jwt";
-import config from '../../../config';
+import config from '../../config';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { IAuthUser } from "../Users/user.interface";
 import { sendEmail } from "../../utils/sendEmail";
@@ -58,6 +58,9 @@ const loginUser = async (payload: TLoginUser) => {
   };
 };
 
+
+
+
 const refreshToken = async (token: string) => {
 
   const decoded = jwt.verify(
@@ -91,6 +94,8 @@ const refreshToken = async (token: string) => {
     accessToken,
   };
 };
+
+
 
 
 const changePassword = async (
@@ -138,6 +143,7 @@ const changePassword = async (
     message: 'Password changed successfully!',
   };
 };
+
 
 
 

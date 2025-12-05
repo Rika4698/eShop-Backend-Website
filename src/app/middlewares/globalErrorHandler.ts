@@ -1,5 +1,5 @@
 import { ErrorRequestHandler } from 'express';
-import config from '../../config';
+import config from '../config';
 import AppError from '../errors/appError';
 
 import { Prisma } from '@prisma/client';
