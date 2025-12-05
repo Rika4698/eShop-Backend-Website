@@ -6,3 +6,14 @@ export type TProducts = {
   image: string[];
   categoryId: string;
 };
+
+
+export type TProductFilterRequest = {
+  searchTerm?: string;
+  vendorId?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  stockQuantity?: number;
+  flashSale?: boolean;
+  category?: string;
+};

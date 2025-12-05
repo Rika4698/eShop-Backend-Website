@@ -11,7 +11,7 @@ model Product {
   categoryId        String?
   vendorId          String
   orderDetails      OrderDetail[]
- 
+  reviews            Review[]
   category          Category?           @relation(fields: [categoryId], references: [id])
   vendor            Vendor              @relation(fields: [vendorId], references: [id])
 

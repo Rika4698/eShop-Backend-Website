@@ -11,6 +11,7 @@ model User {
   customer  Customer?
 
   @@map("users")
+  ReviewReply ReviewReply[]
   
 }
 
@@ -43,7 +44,7 @@ model Customer {
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
   orders            Order[]
-  
+  reviews           Review[]
   user              User                @relation(fields: [email], references: [email])
 
   @@map("customers")
@@ -63,7 +64,7 @@ model Vendor {
   updatedAt   DateTime  @updatedAt
   products    Product[]
   orders      Order[]
- 
+  review      Review[]
   user        User      @relation(fields: [email], references: [email])
 
   @@map("vendors")

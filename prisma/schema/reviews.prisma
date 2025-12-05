@@ -1,0 +1,26 @@
+model Review {
+  id         String   @id @default(uuid())
+  productId  String
+  customerId String
+  rating     Int
+  comment    String?
+  vendorId   String?
+  product    Product  @relation(fields: [productId], references: [id])
+  customer   Customer @relation(fields: [customerId], references: [id])
+  vendor     Vendor?  @relation(fields: [vendorId], references: [id])
+  ReviewReply ReviewReply[]
+
+  @@map("reviews")
+}
+
+model ReviewReply {
+  id          String   @id @default(cuid())
+  reviewId    String   
+  review      Review   @relation(fields: [reviewId], references: [id])
+  userId      String 
+  user        User     @relation(fields: [userId], references: [id])
+  comment     String? 
+  isDeleted   Boolean? @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
