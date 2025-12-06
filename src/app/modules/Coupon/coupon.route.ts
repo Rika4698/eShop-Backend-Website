@@ -28,4 +28,18 @@ router.get(
 
 
 
+router.patch(
+  '/:couponId',
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  validateRequest(couponValidation.updateCouponValidation),
+  CouponController.updateCoupon,
+);
+
+router.delete(
+  '/:couponId',
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  CouponController.deleteCoupon,
+);
+
+
 export const CouponRoutes = router;
