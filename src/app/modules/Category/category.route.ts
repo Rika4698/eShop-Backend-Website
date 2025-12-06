@@ -23,5 +23,30 @@ router.post(
 
 
 
+router.get('/all-category', CategoryController.getAllCategories);
+
+
+router.patch(
+  '/update-category/:categoryId',upload.fields([{ name: "image", maxCount: 1 }]),
+  (req: Request, res: Response, next: NextFunction) => {
+    if (req.body.data) {
+        req.body = JSON.parse(req.body.data);
+        console.log(  req.body );
+        
+    }
+    next();
+},
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  validateRequest(categoryValidation.updateCategoryValidation),
+  CategoryController.updateCategory,
+);
+
+
+
+router.delete(
+  '/:id',
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  CategoryController.deleteCategory,
+);
 
 export const CategoryRoutes = router;
