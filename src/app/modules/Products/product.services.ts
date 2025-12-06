@@ -188,9 +188,122 @@ const getAllProducts = async (
 
 
 
+const getProductById = async (productId: string) => {
+    const product = await prisma.product.findUniqueOrThrow({
+        where: {
+            id: productId,
+            isDeleted: false,
+        },
+        include: {
+            category: true,
+            vendor: true,
+            reviews: {
+                include: {
+                    customer: true,
+                },
+            },
+            orderDetails: true,
+        },
+    });
+
+    return product;
+};
+
+
+
+
+
+const updateProduct = async (
+    productId: string,
+    files: any,
+    updateData: Prisma.ProductUpdateInput
+) => {
+    // Ensure the product exists
+    const existingProduct = await prisma.product.findUniqueOrThrow({
+        where: { id: productId },
+    });
+
+    // Handle images if provided
+    const image = files?.image
+        ? files?.image.map((file: { path: any }) => file.path)
+        : [];
+
+    console.log(image);
+
+    // If new images are provided, set the new image array to the updateData
+    if (image.length > 0) {
+        updateData.image = image;
+    }
+
+    // If the category hasn't changed, we should not update the category
+    if (updateData.category === existingProduct.categoryId) {
+        delete updateData.category;
+    }
+
+    // Proceed with updating the product
+    const updatedProduct = await prisma.product.update({
+        where: {
+            id: productId,
+        },
+        data: updateData,
+        include: {
+            category: true,
+            vendor: true,
+            reviews: true,
+        },
+    });
+
+    // console.log(updatedProduct, "Updated Product");
+
+    return updatedProduct;
+};
+
+
+const duplicateProduct = async (productId: string) => {
+    const originalProduct = await prisma.product.findUnique({
+        where: { id: productId },
+    });
+
+    if (!originalProduct) {
+        throw new Error("Product not found");
+    }
+
+    const newSlug = `${originalProduct.id}-2`;
+
+    const { id, ...productData } = originalProduct;
+
+    const result = await prisma.product.create({
+        data: {
+            ...productData,
+            id: newSlug,
+        },
+    });
+    console.log(result);
+    return result;
+};
+
+
+const deleteProduct = async (productId: string) => {
+    await prisma.product.findUniqueOrThrow({
+        where: { id: productId },
+    });
+
+    const deletedProduct = await prisma.product.delete({
+        where: {
+            id: productId,
+        },
+        
+    });
+
+    return deletedProduct;
+};
 
 export const ProductServices = {
     createProduct,
-    getAllProducts
+    getAllProducts,
+    getProductById,
+    updateProduct,
+    duplicateProduct,
+    deleteProduct,
     
 };

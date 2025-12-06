@@ -44,7 +44,7 @@ router.patch(
 
 
 router.delete(
-  '/:id',
+  '/:categoryId',
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   CategoryController.deleteCategory,
 );

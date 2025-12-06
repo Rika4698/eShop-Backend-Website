@@ -7,7 +7,7 @@ import { ProductController } from './product.controller';
 import { ProductValidation } from './product.validation';
 
 const router = express.Router();
-
+//create
 router.post(
   '/create-product', upload.fields([
     { name: "image", maxCount: 10 },
@@ -25,8 +25,41 @@ router.post(
   ProductController.createProduct,
 );
 
+//get all
 router.get('/all-product', ProductController.getAllProducts);
 
+
+//single product
+router.get('/:productId',ProductController.getSingleProduct);
+
+//update product
+router.patch(
+  '/:productId',upload.fields([
+    { name: "image", maxCount: 10 },
+]),(req: Request, res: Response, next: NextFunction) => {
+    if (req.body.data) {
+        req.body = JSON.parse(req.body.data);
+    }
+ 
+    next();
+},
+  auth(UserRole.VENDOR),
+  validateRequest(ProductValidation.updateProductValidation),
+  ProductController.updateProduct,
+);
+
+//duplicate product
+router.post(
+  "/duplicate/:productId",
+  ProductController.duplicateProduct
+);
+
+//delete
+router.delete(
+  '/:productId',
+  auth(UserRole.VENDOR),
+  ProductController.deleteProduct,
+);
 
 
 
