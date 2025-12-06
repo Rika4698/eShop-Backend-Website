@@ -4,6 +4,7 @@ import { AuthRoutes } from '../modules/Auth/auth.route';
 import { ProductRoutes } from '../modules/Products/product.route';
 import { CategoryRoutes } from '../modules/Category/category.route';
 import { OrderRoutes } from '../modules/Orders/order.route';
+import { CouponRoutes } from '../modules/Coupon/coupon.route';
 
 
 
@@ -29,6 +30,10 @@ const moduleRouter = [
    {
     path: '/orders',
     route: OrderRoutes,
+  },
+  {
+    path: '/coupons',
+    route: CouponRoutes,
   },
 
 
