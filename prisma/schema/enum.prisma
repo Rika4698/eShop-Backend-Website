@@ -12,5 +12,14 @@ enum UserStatus {
   DELETED
 }
 
+enum PaymentStatus {
+  PENDING
+  PAID
+  UNPAID
+}
 
+enum DiscountStatus {
+  PERCENTAGE
+  FIXED
+}
 

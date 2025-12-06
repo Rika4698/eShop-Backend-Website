@@ -1,0 +1,27 @@
+model Coupon {
+  id              String           @id @default(uuid())
+  code            String           @unique
+  discountValue   Float
+  startDate       DateTime         @default(now())
+  endDate         DateTime
+  usedCount       Int              @default(0)
+  isActive        Boolean          @default(true)
+  discountStatus  DiscountStatus
+  customerCoupons CustomerCoupon[]
+
+  @@map("coupons")
+}
+
+model CustomerCoupon {
+  id         String    @id @default(uuid())
+  customerId String
+  couponId   String
+  redeemedAt DateTime?
+  isRedeemed Boolean   @default(false)
+
+  coupon   Coupon   @relation(fields: [couponId], references: [id])
+  customer Customer @relation(fields: [customerId], references: [id])
+
+  @@unique([customerId, couponId])
+  @@map("customerCoupons")
+}

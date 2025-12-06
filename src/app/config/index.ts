@@ -14,6 +14,10 @@ export default {
   CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
+  STORE_ID: process.env.STORE_ID,
+  SIGNATURE_KEY: process.env.SIGNATURE_KEY,
+  PAYMENT_URL: process.env.PAYMENT_URL,
+  PAYMENT_VERIFY_URL: process.env.PAYMENT_VERIFY_URL,
   emailSender: {
         EMAIL: process.env.EMAIL,
         APP_PASS: process.env.APP_PASS

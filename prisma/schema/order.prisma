@@ -4,7 +4,7 @@ model Order {
   vendorId        String
   deliveryAddress String?
   totalPrice      Float
- 
+  paymentStatus   PaymentStatus
   transactionId   String        @unique
   orderDetails    OrderDetail[]
 

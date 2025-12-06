@@ -45,6 +45,7 @@ model Customer {
   updatedAt         DateTime            @updatedAt
   orders            Order[]
   reviews           Review[]
+  customerCoupons   CustomerCoupon[]
   user              User                @relation(fields: [email], references: [email])
 
   @@map("customers")
