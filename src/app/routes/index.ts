@@ -5,6 +5,8 @@ import { ProductRoutes } from '../modules/Products/product.route';
 import { CategoryRoutes } from '../modules/Category/category.route';
 import { OrderRoutes } from '../modules/Orders/order.route';
 import { CouponRoutes } from '../modules/Coupon/coupon.route';
+import { RecentViewProductRoutes } from '../modules/Recent Products/recentProduct.route';
+import { PaymentRoutes } from '../modules/Payments/payment.route';
 
 
 
@@ -34,6 +36,14 @@ const moduleRouter = [
   {
     path: '/coupons',
     route: CouponRoutes,
+  },
+  {
+    path: '/payments',
+    route: PaymentRoutes,
+  },
+  {
+    path: '/recent-products',
+    route: RecentViewProductRoutes,
   },
 
 

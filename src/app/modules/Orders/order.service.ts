@@ -6,9 +6,14 @@ import { TOrder, TOrderFilterRequest } from "./order.interface";
 import { Coupon, PaymentStatus, Prisma } from '@prisma/client';
 import { initiatePayment } from "../../utils/payment";
 import { calculatePagination, IPaginationOptions } from "../../utils/calculatePagination";
+import crypto from 'crypto';
 
 
 
+
+const generateTranId = () => {
+  return 'TXN-' + crypto.randomBytes(8).toString('hex').toUpperCase();
+}
 
 
 
@@ -34,6 +39,8 @@ const createOrder = async (payload: TOrder, user: IAuthUser) => {
   if (!vendor) {
     throw new AppError(StatusCodes.NOT_FOUND, "Vendor doesn't exist!");
   }
+
+  const tranId = generateTranId();
 
   let existingCoupon: null | Coupon;
 
@@ -73,7 +80,7 @@ const createOrder = async (payload: TOrder, user: IAuthUser) => {
         customerId: customer.id,
         vendorId: vendor.id,
         deliveryAddress: payload.deliveryAddress,
-        transactionId: payload.transactionId,
+        transactionId: tranId,
         paymentStatus: PaymentStatus.PENDING,
         totalPrice: payload.totalPrice,
       },
@@ -127,7 +134,7 @@ const createOrder = async (payload: TOrder, user: IAuthUser) => {
   });
 
   const paymentData = {
-    transactionId: payload?.transactionId,
+    transactionId: tranId,
     amount: payload?.totalPrice,
     customerName: customer.name,
     customerEmail: customer.email,

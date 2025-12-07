@@ -7,9 +7,7 @@ const createOrderValidationSchema = z.object({
         error: 'Vendor Id is required',
       })
       .trim(),
-    transactionId: z.string({
-      error: 'TransactionId is required',
-    }),
+  
     deliveryAddress: z
     .string({
       error: 'Delivery address is required',
