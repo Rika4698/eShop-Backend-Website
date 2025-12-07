@@ -7,6 +7,7 @@ import { OrderRoutes } from '../modules/Orders/order.route';
 import { CouponRoutes } from '../modules/Coupon/coupon.route';
 import { RecentViewProductRoutes } from '../modules/Recent Products/recentProduct.route';
 import { PaymentRoutes } from '../modules/Payments/payment.route';
+import { ReviewRoutes } from '../modules/Review/review.route';
 
 
 
@@ -44,6 +45,10 @@ const moduleRouter = [
   {
     path: '/recent-products',
     route: RecentViewProductRoutes,
+  },
+  {
+    path: '/reviews',
+    route: ReviewRoutes,
   },
 
 
