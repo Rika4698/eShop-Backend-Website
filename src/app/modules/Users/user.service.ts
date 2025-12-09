@@ -4,30 +4,31 @@ import prisma from "../../utils/prisma";
 import bcrypt from 'bcryptjs';
 import config from "../../config";
 import { UserRole } from "@prisma/client";
+import { createToken } from "../../utils/jwt";
 
 
 
 
-const createAdmin = async (payload: {
+export const createAdmin = async (payload: {
   name: string;
-  password: string;
   email: string;
+  password: string;
 }) => {
-  // checking if the user is exist
-  const user = await prisma.user.findUnique({
-    where: {
-      email: payload.email,
-    },
+  
+  const existingUser = await prisma.user.findUnique({
+    where: { email: payload.email },
   });
 
-  if (user) {
-    throw new AppError(StatusCodes.NOT_FOUND, 'This user is already exist!');
+  if (existingUser) {
+    throw new AppError(StatusCodes.CONFLICT, "This user already exists!");
   }
 
-  const hashedPassword: string = await bcrypt.hash(
+  // Hash password
+  const hashedPassword = await bcrypt.hash(
     payload.password,
-    Number(config.BCRYPT_SALT_ROUND),
+    Number(config.BCRYPT_SALT_ROUND)
   );
+
 
   const newUser = await prisma.$transaction(async (tx) => {
     const user = await tx.user.create({
@@ -36,31 +37,51 @@ const createAdmin = async (payload: {
         password: hashedPassword,
         role: UserRole.ADMIN,
       },
-      include: {
-        admin: true,
-      },
+      include: { admin: true },
     });
 
-    return await tx.admin.create({
+    const admin = await tx.admin.create({
       data: {
         name: payload.name,
         email: user.email,
-        image:'https://i.ibb.co.com/zTC2VwSK/4122823.png',
-        
+        image: "https://i.ibb.co/zTC2VwSK/4122823.png", 
       },
-      
-
     });
 
-
+    return { ...user, admin };
   });
 
-  return newUser;
+  // Create JWT tokens
+  const jwtPayload = {
+    id: newUser.id,
+    email: newUser.email,
+    role: newUser.role,
+  };
+
+  const accessToken = createToken(
+    jwtPayload,
+    config.JWT_ACCESS_SECRET as string,
+    config.JWT_ACCESS_EXPIRES as string
+  );
+
+  const refreshToken = createToken(
+    jwtPayload,
+    config.JWT_REFRESH_SECRET as string,
+    config.JWT_REFRESH_EXPIRES as string
+  );
+
+  // Return combined result
+  const combinedResult = {
+    accessToken,
+    refreshToken,
+    newUser,
+  };
+
+  return combinedResult;
 };
 
 
-
-const createVendor = async (payload: {
+export const createVendor = async (payload: {
   name: string;
   password: string;
   email: string;
@@ -69,22 +90,23 @@ const createVendor = async (payload: {
   logo?: string;
   description?: string;
 }) => {
-  // checking if the user is exist
-  const user = await prisma.user.findUnique({
-    where: {
-      email: payload.email,
-    },
-  });
-console.log(user);
 
-  if (user) {
-    throw new AppError(StatusCodes.NOT_FOUND, 'This user is already exist!');
+  const existingUser = await prisma.user.findUnique({
+    where: { email: payload.email },
+  });
+
+  console.log(existingUser);
+
+  if (existingUser) {
+    throw new AppError(StatusCodes.CONFLICT, "This user already exists!");
   }
 
-  const hashedPassword: string = await bcrypt.hash(
+  // Hash password
+  const hashedPassword = await bcrypt.hash(
     payload.password,
-    Number(config.BCRYPT_SALT_ROUND),
+    Number(config.BCRYPT_SALT_ROUND)
   );
+
 
   const newUser = await prisma.$transaction(async (tx) => {
     const user = await tx.user.create({
@@ -93,49 +115,76 @@ console.log(user);
         password: hashedPassword,
         role: UserRole.VENDOR,
       },
-      include: {
-        vendor: true,
-      },
+      include: { vendor: true },
     });
 
-    return await tx.vendor.create({
+    const vendor = await tx.vendor.create({
       data: {
         name: payload.name,
         email: user.email,
+        shopName: payload.shopName,
+        logo: payload.logo,
+        description: payload.description,
       },
-      include: {
-        user: true,
-      },
+      include: { user: true },
     });
 
-    
+    return { ...user, vendor };
   });
 
-  return newUser;
+  // Create JWT tokens
+  const jwtPayload = {
+    id: newUser.id,
+    email: newUser.email,
+    role: newUser.role,
+  };
+
+  const accessToken = createToken(
+    jwtPayload,
+    config.JWT_ACCESS_SECRET as string,
+    config.JWT_ACCESS_EXPIRES as string
+  );
+
+  const refreshToken = createToken(
+    jwtPayload,
+    config.JWT_REFRESH_SECRET as string,
+    config.JWT_REFRESH_EXPIRES as string
+  );
+
+  // Return combined result
+  const combinedResult = {
+    accessToken,
+    refreshToken,
+    newUser,
+  };
+
+  return combinedResult;
 };
 
 
 
-const createCustomer = async (payload: {
+
+
+export const createCustomer = async (payload: {
   name: string;
   password: string;
   email: string;
 }) => {
-  // checking if the user is exist
-  const user = await prisma.user.findUnique({
-    where: {
-      email: payload.email,
-    },
+
+  const existingUser = await prisma.user.findUnique({
+    where: { email: payload.email },
   });
 
-  if (user) {
-    throw new AppError(StatusCodes.NOT_FOUND, 'This user is already exist!');
+  if (existingUser) {
+    throw new AppError(StatusCodes.CONFLICT, "This user already exists!");
   }
 
-  const hashedPassword: string = await bcrypt.hash(
+  // Hash password
+  const hashedPassword = await bcrypt.hash(
     payload.password,
-    Number(config.BCRYPT_SALT_ROUND),
+    Number(config.BCRYPT_SALT_ROUND)
   );
+
 
   const newUser = await prisma.$transaction(async (tx) => {
     const user = await tx.user.create({
@@ -144,25 +193,48 @@ const createCustomer = async (payload: {
         password: hashedPassword,
         role: UserRole.CUSTOMER,
       },
-      include: {
-        customer: true,
-      },
+      include: { customer: true },
     });
 
-   return await tx.customer.create({
+    const customer = await tx.customer.create({
       data: {
         name: payload.name,
         email: user.email,
-       image:'https://i.ibb.co.com/YBpxwzwN/free-user-icon-3297-thumb.png',
+        image: "https://i.ibb.co/YBpxwzwN/free-user-icon-3297-thumb.png",
       },
+      include: { user: true },
     });
 
-    
+    return { ...user, customer };
   });
 
- 
+  // Create JWT tokens
+  const jwtPayload = {
+    id: newUser.id,
+    email: newUser.email,
+    role: newUser.role,
+  };
 
-  return newUser;
+  const accessToken = createToken(
+    jwtPayload,
+    config.JWT_ACCESS_SECRET as string,
+    config.JWT_ACCESS_EXPIRES as string
+  );
+
+  const refreshToken = createToken(
+    jwtPayload,
+    config.JWT_REFRESH_SECRET as string,
+    config.JWT_REFRESH_EXPIRES as string
+  );
+
+  // Return combined result
+  const combinedResult = {
+    accessToken,
+    refreshToken,
+    newUser,
+  };
+
+  return combinedResult;
 };
 
 
