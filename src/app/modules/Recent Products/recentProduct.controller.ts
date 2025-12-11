@@ -24,8 +24,41 @@ console.log(req.body,"body");
 });
 
 
+const getAllRecentViewProducts = catchAsync(async (req, res) => {
+  const result = await RecentProductViewServices.getAllRecentProducts(
+    req.user as IAuthUser,
+  );
+
+  sendResponse(res, {
+    statusCode:StatusCodes.OK,
+    success: true,
+    message: 'All Recent View Product retrieved successfully!',
+    data: result,
+  });
+});
+
+const deleteRecentProduct = catchAsync(async (req, res) => {
+  const result = await RecentProductViewServices.deleteRecentView(
+    req.body,
+    req.user as IAuthUser,
+  );
+
+  sendResponse(res, {
+    statusCode:StatusCodes.OK,
+    success: true,
+    message: 'Removed from Recent Viewed Products!',
+    data: result,
+  });
+});
 
 export const RecentProductViewController = {
   createRecentProduct,
-
+  getAllRecentViewProducts,
+  deleteRecentProduct,
 };
+
+
+
+
+
+

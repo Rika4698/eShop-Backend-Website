@@ -63,7 +63,80 @@ console.log(customer);
 };
 
 
+const getAllRecentProducts = async (user: IAuthUser) => {
+  const customer = await prisma.customer.findUnique({
+    where: {
+      email: user?.email,
+      isDeleted: false,
+    },
+  });
+
+  if (!customer) {
+    throw new AppError(StatusCodes.NOT_FOUND, "User doesn't exist!");
+  }
+
+  const result = await prisma.recentProductView.findMany({
+    where: {
+      customerId: customer.id,
+    },
+    include: {
+      product: true,
+      customer: true,
+    },
+  });
+  return result;
+};
+
+const deleteRecentView = async (
+  payload: { productId: string },
+  user: IAuthUser,
+) => {
+  const customer = await prisma.customer.findUnique({
+    where: {
+      email: user?.email,
+      isDeleted: false,
+    },
+  });
+
+  if (!customer) {
+    throw new AppError(StatusCodes.NOT_FOUND, "User doesn't exist!");
+  }
+
+  const product = await prisma.product.findUnique({
+    where: {
+      id: payload.productId,
+      isDeleted: false,
+    },
+  });
+
+  if (!product) {
+    throw new AppError(StatusCodes.NOT_FOUND, "Product doesn't exist!");
+  }
+
+  const recentView = await prisma.recentProductView.findFirst({
+    where: {
+      customerId: customer.id,
+      productId: payload.productId,
+    },
+  });
+
+  if (!recentView) {
+    throw new AppError(StatusCodes.NOT_FOUND, 'Recent product view not found!');
+  }
+
+  const result = await prisma.recentProductView.delete({
+    where: {
+      id: recentView.id,
+    },
+  });
+
+  return result;
+};
+
+
 export const RecentProductViewServices = {
   createRecentProducts,
+  getAllRecentProducts,
+  deleteRecentView,
   
 };

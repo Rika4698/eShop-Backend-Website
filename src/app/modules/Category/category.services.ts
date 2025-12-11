@@ -111,13 +111,12 @@ const updateCategory = async (
 
 
 const deleteCategory = async (categoryId: string) => {
-  // Check category exists
   const category = await prisma.category.findUnique({
     where: { id: categoryId },
   });
 
   if (!category) {
-    throw new AppError(StatusCodes.NOT_FOUND, 'Category not found!');
+    throw new AppError(StatusCodes.NOT_FOUND, "Category not found!");
   }
 
   try {
@@ -128,15 +127,19 @@ const deleteCategory = async (categoryId: string) => {
         data: { categoryId: null },
       });
 
-      // Delete image from Cloudinary (if exists)
+      // Delete cloudinary image safely
       if (category.image) {
-        const publicId = extractPublicId(category.image);
-        if (publicId) {
-          await cloudinaryUpload.uploader.destroy(publicId);
+        try {
+          const publicId = extractPublicId(category.image);
+          if (publicId) {
+            await cloudinaryUpload.uploader.destroy(publicId);
+          }
+        } catch (err) {
+          console.warn("Cloudinary deletion failed:", err);
         }
       }
 
-      // Hard delete the category
+      // Delete the category
       const deletedCategory = await tx.category.delete({
         where: { id: categoryId },
       });
@@ -150,9 +153,14 @@ const deleteCategory = async (categoryId: string) => {
       data: result,
     };
   } catch (error) {
-    throw new AppError(StatusCodes.INTERNAL_SERVER_ERROR, "Failed to delete category");
+    console.error("Delete Category Error:", error);
+    throw new AppError(
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      "Failed to delete category"
+    );
   }
 };
+
 
 
 export const CategoryServices = {

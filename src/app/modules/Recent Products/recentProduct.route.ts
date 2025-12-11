@@ -16,7 +16,27 @@ router.post(
   RecentProductViewController.createRecentProduct,
 );
 
+router.get(
+  '/all',
+  auth(
+    UserRole.SUPER_ADMIN,
+    UserRole.ADMIN,
+    UserRole.VENDOR,
+    UserRole.CUSTOMER,
+  ),
+  RecentProductViewController.getAllRecentViewProducts,
+);
 
+router.delete(
+  '/',
+  auth(
+    UserRole.SUPER_ADMIN,
+    UserRole.ADMIN,
+    UserRole.VENDOR,
+    UserRole.CUSTOMER,
+  ),
+  RecentProductViewController.deleteRecentProduct,
+);
 
 
 
