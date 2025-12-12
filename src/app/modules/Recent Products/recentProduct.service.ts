@@ -16,7 +16,6 @@ const createRecentProducts = async (
       isDeleted: false,
     },
   });
-console.log(customer);
 
   if (!customer) {
     throw new AppError(StatusCodes.NOT_FOUND, "User doesn't exist!");
@@ -44,8 +43,9 @@ console.log(customer);
     },
   });
 
+  // FIX: Return the existing record instead of undefined
   if (existingRecentProduct) {
-    return;
+    return existingRecentProduct;
   }
 
   const recentProduct = await prisma.recentProductView.create({
@@ -61,6 +61,8 @@ console.log(customer);
 
   return recentProduct;
 };
+
+
 
 
 const getAllRecentProducts = async (user: IAuthUser) => {
