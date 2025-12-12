@@ -9,7 +9,7 @@ import cookieParser from 'cookie-parser';
 
 const app: Application = express();
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: 'https://eshop-frontend-website.vercel.app',
     credentials: true
 }));
 app.use(cookieParser());
