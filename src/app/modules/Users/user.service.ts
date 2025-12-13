@@ -436,12 +436,12 @@ const updateCustomer = async (
     },
   });
 
+  if (!customer) {
+      throw new AppError(StatusCodes.NOT_FOUND, "User doesn't exist!");
+    }
+
   // Use `any` to avoid TypeScript error
   const image = files?.image?.[0]?.path || "";
-
-  if (!customer) {
-    throw new AppError(StatusCodes.NOT_FOUND, "User doesn't exist!");
-  }
 
   if(image){
     payload.image = image

@@ -82,8 +82,6 @@ router.patch(
   upload.fields([{ name: "image", maxCount: 1 }]),
   
      userController.updateCustomer
- 
-  
 );
 
 router.patch(

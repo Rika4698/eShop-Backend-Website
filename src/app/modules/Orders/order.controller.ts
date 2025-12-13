@@ -5,6 +5,8 @@ import { IAuthUser } from "../Users/user.interface";
 import { OrderServices } from "./order.service";
 import pick from "../../utils/pick";
 import { orderFilterableFields } from "./order.interface";
+import AppError from "../../errors/appError";
+import prisma from "../../utils/prisma";
 
 
 
@@ -44,8 +46,35 @@ const getAllOrders = catchAsync(async (req, res) => {
   });
 });
 
+const getOrderByTransactionId = catchAsync(async (req, res) => {
+  const { transactionId } = req.params;
+  
+  const order = await prisma.order.findUnique({
+    where: { transactionId },
+    include: {
+      orderDetails: {
+        include: {
+          product: true
+        }
+      }
+    }
+  });
+
+  if (!order) {
+    throw new AppError(StatusCodes.NOT_FOUND, "Order not found!");
+  }
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Order retrieved successfully",
+    data: order,
+  });
+});
+
 export const OrderControllers = {
   createOrder,
   getAllOrders,
+  getOrderByTransactionId,
   
 };

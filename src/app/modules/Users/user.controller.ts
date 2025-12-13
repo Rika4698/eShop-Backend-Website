@@ -197,12 +197,16 @@ const updateVendor = catchAsync(async (req, res) => {
   });
 });
 
-const updateCustomer = catchAsync(async (req: Request , res:Response,) => {
-  // console.log( req.user);
 
+const updateCustomer = catchAsync(async (req: Request, res: Response) => {
+  // req.body directly contains the fields (name, address, phone)
+  // No need to parse JSON
+   console.log('📝 Request Body:', req.body);
+  console.log('📸 Request Files:', req.files);
+  console.log('👤 Request User:', req.user);
   const result = await userService.updateCustomer(
-    req.body,
-    req.files,    
+    req.body,        // This now contains { name?, address?, phone? }
+    req.files,       // Contains the uploaded files
     req.user as IAuthUser,
   );
 

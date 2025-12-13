@@ -18,6 +18,7 @@ export default {
   SIGNATURE_KEY: process.env.SIGNATURE_KEY,
   PAYMENT_URL: process.env.PAYMENT_URL,
   PAYMENT_VERIFY_URL: process.env.PAYMENT_VERIFY_URL,
+  FRONTEND_URL:process.env.FRONTEND_URL,
   emailSender: {
         EMAIL: process.env.EMAIL,
         APP_PASS: process.env.APP_PASS

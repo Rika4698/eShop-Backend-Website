@@ -7,9 +7,13 @@ export const initiatePayment = async (paymentData: any) => {
       store_id: config.STORE_ID,
       signature_key: config.SIGNATURE_KEY,
       tran_id: paymentData.transactionId,
-      success_url: `http://localhost:5000/api/v1/payments/confirmation?transactionId=${paymentData.transactionId}&status=success`,
-      fail_url: `http://localhost:5000/api/v1/payments/confirmation?status=failed`,
+      
+      //  Remove the status=success parameter
+      // Aamarpay automatically adds its own parameters
+      success_url: `http://localhost:5000/api/v1/payments/confirmation?transactionId=${paymentData.transactionId}`,
+      fail_url: `http://localhost:5000/api/v1/payments/confirmation?transactionId=${paymentData.transactionId}`,
       cancel_url: 'http://localhost:3000/',
+      
       amount: paymentData.amount,
       currency: 'BDT',
       desc: 'Merchant Registration Payment',
@@ -25,14 +29,13 @@ export const initiatePayment = async (paymentData: any) => {
       type: 'json',
     });
 
+    console.log('Payment initiation response:', response.data);
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
+    console.error('Payment initiation failed:', error.response?.data || error.message);
     throw new Error('Payment initiation failed!');
   }
 };
-
-
-
 
 export const verifyPayment = async (tranId: string) => {
   try {
@@ -45,10 +48,10 @@ export const verifyPayment = async (tranId: string) => {
       },
     });
 
-    console.log('Payment Gateway Response:', response.data);
+    console.log('Payment verification response:', response.data);
     return response.data;
-  } catch (err) {
-    console.error('Payment Verification Error:', err);
+  } catch (err: any) {
+    console.error('Payment verification error:', err.response?.data || err.message);
     throw new Error('Payment validation failed!');
   }
 };

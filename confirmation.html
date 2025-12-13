@@ -19,61 +19,73 @@
         justify-content: center;
         align-items: center;
         font-family: 'Anek Devanagari', sans-serif;
-        background-color: #f4f7fb;
+        background: linear-gradient(135deg, #66ea99 0%, #4ba264 100%);
       }
       .card {
-        background-color: #fff;
-        border-radius: 10px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        background-color: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         text-align: center;
-        padding: 40px;
-        max-width: 450px;
+        padding: 50px;
+        max-width: 500px;
         width: 90%;
-        border: 3px solid #4caf50;
+        animation: slideIn 0.5s ease-out;
+      }
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-50px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
       .card .icon {
-        background-color: #4caf50;
+        background: linear-gradient(135deg, #66ea87 0%, #4ba276 100%);
         border-radius: 50%;
         color: white;
         display: inline-block;
-        font-size: 36px;
-        line-height: 70px;
-        height: 70px;
-        width: 70px;
-        margin-bottom: 20px;
+        font-size: 48px;
+        line-height: 90px;
+        height: 90px;
+        width: 90px;
+        margin-bottom: 30px;
+        animation: bounce 1s infinite;
+      }
+      @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
       }
       .card h1 {
-        font-size: 28px;
-        margin-bottom: 15px;
+        font-size: 32px;
+        margin-bottom: 20px;
         color: #333;
+        font-weight: 700;
       }
       .card p {
         font-size: 18px;
-        color: #777;
-        margin-bottom: 25px;
+        color: #666;
+        margin-bottom: 30px;
+        line-height: 1.6;
       }
-      .card .button {
-        display: inline-block;
-        position: relative;
-        padding: 12px 25px;
-        color: #fff;
-        background-color: #4caf50;
-        border-radius: 6px;
-        text-decoration: none;
-        font-size: 18px;
-        font-weight: bold;
-        text-transform: uppercase;
-        border: 2px solid #4caf50;
-        transition: all 0.3s ease;
+      .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #66ea71;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+        margin: 20px auto;
       }
-      .card .button:hover {
-        background-color: #388e3c;
-        color: #fff;
-        border-color: #388e3c;
-        transform: translateY(-3px);
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
       }
-      .card .button:focus {
-        outline: none;
+      .footer {
+        margin-top: 20px;
+        font-size: 14px;
+        color: #999;
       }
     </style>
   </head>
@@ -81,12 +93,10 @@
   <body>
     <div class="card">
       <div class="icon">✓</div>
-      <h1>Payment Success!</h1>
-      <p>
-        Thank you for your purchase! Your payment has been successfully processed and your order is on its way.
-      </p>
-
-      <a href="http://localhost:3000" class="button">Go to Home</a>
+      <h1>{{message}}</h1>
+      <p>Please wait while we redirect you to the confirmation page...</p>
+      <div class="spinner"></div>
+      <div class="footer">This page will automatically redirect in 2 seconds</div>
     </div>
   </body>
 </html>

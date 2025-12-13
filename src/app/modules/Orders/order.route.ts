@@ -25,4 +25,9 @@ router.get(
   OrderControllers.getAllOrders,
 );
 
+router.get('/transaction/:transactionId', 
+  auth(UserRole.CUSTOMER), 
+  OrderControllers.getOrderByTransactionId
+);
+
 export const OrderRoutes = router;
