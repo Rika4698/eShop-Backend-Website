@@ -251,6 +251,28 @@ const updateVendorStatus = catchAsync(async (req, res) => {
 
 
 
+const getPublicVendors = catchAsync(async (req: Request, res: Response) => {
+  const filters = {
+    searchTerm: req.query.searchTerm as string,
+    limit: Number(req.query.limit) || 12,
+    page: Number(req.query.page) || 1,
+   categoryId: req.query.categoryId && req.query.categoryId !== "null" ? req.query.categoryId as string : undefined,
+  };
+  // console.log("Filters:", filters);
+
+  const result = await userService.getPublicVendors(filters);
+ console.log(result);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Vendors retrieved successfully",
+    data: result.data,
+    meta: result.meta,
+  });
+});
+
+
+
 export const userController = {
 
   createAdmin,
@@ -266,6 +288,7 @@ export const userController = {
   updateVendor,
   getAllFromDB,
   deleteUser,
-  updateVendorStatus
+  updateVendorStatus,
+  getPublicVendors,
 
 };

@@ -666,6 +666,90 @@ const updateVendorStatus = async (vendorId: string, isDeleted: boolean) => {
 
 
 
+const getPublicVendors = async (filters?: any) => {
+  const { searchTerm, limit = 12, page = 1, categoryId } = filters || {};
+
+  let where: any = {
+    role: "VENDOR",
+    status: "ACTIVE",
+    vendor: {
+      isDeleted: false, 
+    },
+  };
+
+ if (categoryId) {
+  where.vendor.products = {
+    some: {
+      categoryId: categoryId,
+      isDeleted: false,
+    },
+  };
+}
+
+  // Search filter
+  if (searchTerm && searchTerm.trim() !== "") {
+    const term = searchTerm.trim().toLowerCase();
+    where.OR = [
+      { email: { contains: term, mode: "insensitive" } },
+      {
+        vendor: {
+          name: { contains: term, mode: "insensitive" },
+        },
+      },
+      {
+        vendor: {
+          shopName: { contains: term, mode: "insensitive" },
+        },
+      },
+    ];
+  }
+
+  const vendors = await prisma.user.findMany({
+    where,
+    skip: (page - 1) * limit,
+    take: limit,
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      email: true,
+      role: true,
+      status: true,
+      createdAt: true,
+      vendor: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          shopName: true,
+          logo: true,
+          description: true,
+          _count: {
+            select: {
+              products: true,
+              followers: true,
+            },
+          },
+
+          followers: { select: { customerId: true } }
+        },
+      },
+    },
+  });
+
+  const totalVendors = await prisma.user.count({ where });
+
+  return {
+    data: vendors,
+    meta: {
+      total: totalVendors,
+      page,
+      limit,
+      totalPage: Math.ceil(totalVendors / limit),
+    },
+  };
+};
+
+
 
 export const userService = {
   createAdmin,
@@ -681,6 +765,7 @@ export const userService = {
   getAllFromDB, 
   updateUserStatus,
   deleteUser,
-  updateVendorStatus
+  updateVendorStatus,
+  getPublicVendors,
   
 };

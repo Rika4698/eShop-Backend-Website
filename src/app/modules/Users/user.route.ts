@@ -29,7 +29,7 @@ router.get('/all',auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   userController.getAllFromDB,
 );
 
-
+router.get("/vendors/all", userController.getPublicVendors);
 
 router.get(
   '/me',
