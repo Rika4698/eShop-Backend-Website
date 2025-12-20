@@ -14,7 +14,7 @@ export const initiatePayment = async (paymentData: any) => {
       fail_url: `http://localhost:5000/api/v1/payments/confirmation?transactionId=${paymentData.transactionId}`,
       cancel_url: 'http://localhost:3000/',
       
-      amount: paymentData.amount,
+      amount: paymentData.amount.toFixed(2),
       currency: 'BDT',
       desc: 'Merchant Registration Payment',
       cus_name: paymentData.customerName,

@@ -9,9 +9,9 @@ import prisma from '../../utils/prisma';
 
 
 const confirmationService = async (transactionId: string, status?: string) => {
-  console.log('Payment confirmation service started');
-  console.log('Transaction ID:', transactionId);
-  console.log('Status from URL:', status);
+  // console.log('Payment confirmation service started');
+  // console.log('Transaction ID:', transactionId);
+  // console.log('Status from URL:', status);
 
   try {
     // Verify payment with Aamarpay
@@ -22,13 +22,11 @@ const confirmationService = async (transactionId: string, status?: string) => {
     let message = '';
     let paymentSuccess = false;
 
-
-
     // Check payment status from gateway response
     const paymentStatus = verifyResponse?.pay_status || verifyResponse?.status;
     console.log('Payment status from gateway:', paymentStatus);
 
-    // More comprehensive status checking
+    // Comprehensive status checking
     const isSuccessful = paymentStatus && 
       (paymentStatus.toLowerCase() === 'successful' || 
        paymentStatus.toLowerCase() === 'success' ||
@@ -36,26 +34,86 @@ const confirmationService = async (transactionId: string, status?: string) => {
        paymentStatus === 'Successful');
 
     if (isSuccessful) {
-      // Update order to PAID
-      result = await prisma.order.update({
-        where: { transactionId },
-        data: { paymentStatus: 'PAID' },
+      // PAYMENT SUCCESSFUL
+      result = await prisma.$transaction(async (tx) => {
+        // 1. Update order to PAID
+        const order = await tx.order.update({
+          where: { transactionId },
+          data: { paymentStatus: 'PAID' },
+        });
+
+        // Record coupon usage (but allow reuse)
+        if (order.couponCode) {
+          const coupon = await tx.coupon.findUnique({
+            where: { code: order.couponCode },
+          });
+
+          if (coupon) {
+            // Increment usage count
+            await tx.coupon.update({
+              where: { id: coupon.id },
+              data: { usedCount: { increment: 1 } },
+            });
+
+            // Create usage record for this specific order
+            // Links CustomerCoupon to Order via orderId
+            await tx.customerCoupon.create({
+              data: {
+                customerId: order.customerId,
+                couponId: coupon.id,
+                orderId: order.id,  
+                redeemedAt: new Date(),
+                isRedeemed: true,
+              },
+            });
+
+            console.log(`Coupon ${order.couponCode} usage recorded for order ${order.id}`);
+          }
+        }
+
+        return order;
       });
+
       message = '🎉 Payment Successful!';
       paymentSuccess = true;
       console.log('Order updated to PAID:', result.id);
+
     } else {
-      // Update order to UNPAID
-      result = await prisma.order.update({
-        where: { transactionId },
-        data: { paymentStatus: 'UNPAID' },
+      // PAYMENT FAILED 
+      result = await prisma.$transaction(async (tx) => {
+        // Update order to UNPAID
+        const order = await tx.order.update({
+          where: { transactionId },
+          data: { paymentStatus: 'UNPAID' },
+        });
+
+        // Restore product stock
+        const orderDetails = await tx.orderDetail.findMany({
+          where: { orderId: order.id },
+        });
+
+        for (const detail of orderDetails) {
+          await tx.product.update({
+            where: { id: detail.productId },
+            data: {
+              stockQuantity: {
+                increment: detail.quantity,
+              },
+            },
+          });
+        }
+
+        console.log(`Stock restored for failed payment. Order: ${order.id}`);
+
+        return order;
       });
+
       message = '❌ Payment Failed!';
       paymentSuccess = false;
-      console.log('Order marked as UNPAID');
+      console.log('Order marked as UNPAID and stock restored');
     }
 
-    // Read HTML template from root
+    // Read HTML template
     const filePath = join(__dirname, '../../../../confirmation.html');
     let template = readFileSync(filePath, 'utf-8');
     template = template.replace('{{message}}', message);
@@ -90,13 +148,32 @@ const confirmationService = async (transactionId: string, status?: string) => {
   } catch (error: any) {
     console.error('Payment confirmation error:', error);
 
-    // Try to update order to UNPAID on error
+    // Try to update order to UNPAID and restore stock on error
     try {
-      await prisma.order.update({
-        where: { transactionId },
-        data: { paymentStatus: 'UNPAID' },
+      await prisma.$transaction(async (tx) => {
+        const order = await tx.order.update({
+          where: { transactionId },
+          data: { paymentStatus: 'UNPAID' },
+        });
+
+        // Restore stock
+        const orderDetails = await tx.orderDetail.findMany({
+          where: { orderId: order.id },
+        });
+
+        for (const detail of orderDetails) {
+          await tx.product.update({
+            where: { id: detail.productId },
+            data: {
+              stockQuantity: {
+                increment: detail.quantity,
+              },
+            },
+          });
+        }
+
+        console.log('Order marked as UNPAID and stock restored due to error');
       });
-      console.log('Order marked as UNPAID due to error');
     } catch (dbError) {
       console.error('Failed to update order in DB:', dbError);
     }
@@ -120,6 +197,7 @@ const confirmationService = async (transactionId: string, status?: string) => {
     return template;
   }
 };
+
 
 
 

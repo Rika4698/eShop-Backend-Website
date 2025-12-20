@@ -2,7 +2,8 @@ model Follow {
   id         String @id @default(uuid())
   customerId String
   vendorId   String
-
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   customer Customer @relation(fields: [customerId], references: [id])
   vendor   Vendor   @relation(fields: [vendorId], references: [id])
 

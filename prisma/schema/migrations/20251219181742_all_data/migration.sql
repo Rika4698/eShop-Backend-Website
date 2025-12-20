@@ -7,6 +7,8 @@ CREATE TABLE "coupons" (
     "endDate" TIMESTAMP(3) NOT NULL,
     "usedCount" INTEGER NOT NULL DEFAULT 0,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
     "discountStatus" "DiscountStatus" NOT NULL,
 
     CONSTRAINT "coupons_pkey" PRIMARY KEY ("id")
@@ -19,6 +21,8 @@ CREATE TABLE "customerCoupons" (
     "couponId" TEXT NOT NULL,
     "redeemedAt" TIMESTAMP(3),
     "isRedeemed" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "customerCoupons_pkey" PRIMARY KEY ("id")
 );
@@ -28,6 +32,8 @@ CREATE TABLE "followers" (
     "id" TEXT NOT NULL,
     "customerId" TEXT NOT NULL,
     "vendorId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "followers_pkey" PRIMARY KEY ("id")
 );
@@ -41,6 +47,8 @@ CREATE TABLE "orders" (
     "totalPrice" DOUBLE PRECISION NOT NULL,
     "paymentStatus" "PaymentStatus" NOT NULL,
     "transactionId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "orders_pkey" PRIMARY KEY ("id")
 );
@@ -69,6 +77,8 @@ CREATE TABLE "products" (
     "isDeleted" BOOLEAN NOT NULL DEFAULT false,
     "categoryId" TEXT,
     "vendorId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "products_pkey" PRIMARY KEY ("id")
 );
@@ -80,6 +90,8 @@ CREATE TABLE "categories" (
     "name" TEXT NOT NULL,
     "image" TEXT NOT NULL,
     "isDeleted" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "categories_pkey" PRIMARY KEY ("id")
 );
@@ -102,6 +114,8 @@ CREATE TABLE "reviews" (
     "rating" INTEGER NOT NULL,
     "comment" TEXT,
     "vendorId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "reviews_pkey" PRIMARY KEY ("id")
 );

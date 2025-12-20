@@ -25,6 +25,8 @@ router.post(
   ProductController.createProduct,
 );
 
+
+
 //get all
 router.get('/all-product', ProductController.getAllProducts);
 

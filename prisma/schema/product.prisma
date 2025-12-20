@@ -13,6 +13,8 @@ model Product {
   orderDetails      OrderDetail[]
   reviews            Review[]
   recentProductView RecentProductView[]
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
   category          Category?           @relation(fields: [categoryId], references: [id])
   vendor            Vendor              @relation(fields: [vendorId], references: [id])
 
@@ -27,6 +29,8 @@ model Category {
   image     String
   isDeleted Boolean   @default(false)
   products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   @@map("categories")
 }

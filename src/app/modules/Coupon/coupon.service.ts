@@ -73,6 +73,7 @@ const deleteCoupon = async (couponId: string) => {
 
   const deletedCoupon = await prisma.coupon.delete({
     where: { id: couponId },
+    
    
   });
 
