@@ -219,6 +219,7 @@ const createOrder = async (payload: TOrder, user: IAuthUser) => {
 
 
 
+// all order
 
 const getAllOrders = async (
   filters: TOrderFilterRequest,
@@ -259,7 +260,7 @@ const getAllOrders = async (
     orderBy:
       options.sortBy && options.sortOrder
         ? { [options.sortBy]: options.sortOrder }
-        : { paymentStatus: 'asc' },
+        : { createdAt: 'desc' }, // Changed to show newest first
     include: {
       vendor: true,
       customer: true,

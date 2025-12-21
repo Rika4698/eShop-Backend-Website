@@ -5,12 +5,13 @@ model Review {
   rating     Int
   comment    String?
   vendorId   String?
+  ReviewReply ReviewReply[]
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
   product    Product  @relation(fields: [productId], references: [id])
   customer   Customer @relation(fields: [customerId], references: [id])
   vendor     Vendor?  @relation(fields: [vendorId], references: [id])
-  ReviewReply ReviewReply[]
+  
 
   @@map("reviews")
 }

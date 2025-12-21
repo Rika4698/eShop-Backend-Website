@@ -200,6 +200,8 @@ const getProductById = async (productId: string) => {
             reviews: {
                 include: {
                     customer: true,
+                    ReviewReply:true,
+                   
                 },
             },
             orderDetails: true,
