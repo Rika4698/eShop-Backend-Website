@@ -76,6 +76,15 @@ router.delete(
   userController.unfollowVendor,
 );
 
+
+router.patch(
+  "/update-admin",
+  auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
+  upload.fields([{ name: "image", maxCount: 1 }]),
+  userController.updateAdmin
+);
+
+
 router.patch(
   '/update-customer',
   auth(UserRole.CUSTOMER),
@@ -83,6 +92,8 @@ router.patch(
   
      userController.updateCustomer
 );
+
+
 
 router.patch(
   '/update-vendor',

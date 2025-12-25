@@ -116,6 +116,9 @@ const changeUpdateUserStatus = catchAsync(async (req: Request, res: Response) =>
   });
 });
 
+
+
+
 const getMyProfile = catchAsync(async (req, res) => {
   const result = await userService.getMyProfile(req.user as IAuthUser);
 
@@ -126,6 +129,9 @@ const getMyProfile = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
+
+
 
 const getVendorUser = catchAsync(async (req, res) => {
   const { vendorId } = req.params;
@@ -155,6 +161,9 @@ const getCustomerUser = catchAsync(async (req, res) => {
   });
 });
 
+
+
+
 const followVendor = catchAsync(async (req, res) => {
   const result = await userService.followVendor(
     req.body,
@@ -169,6 +178,9 @@ const followVendor = catchAsync(async (req, res) => {
   });
 });
 
+
+
+
 const unfollowVendor = catchAsync(async (req, res) => {
   const result = await userService.unfollowVendor(
     req.body,
@@ -182,6 +194,10 @@ const unfollowVendor = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
+
+
+
 const updateVendor = catchAsync(async (req, res) => {
   const result = await userService.updateVendor(
     req.body,
@@ -196,6 +212,27 @@ const updateVendor = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
+
+
+const updateAdmin = catchAsync(async (req: Request, res: Response) => {
+  const result = await userService.updateAdmin(
+    req.body,
+    req.files,
+    req.user as any
+  );
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Admin profile updated successfully!",
+    data: result,
+  });
+});
+
+
+
+
 
 
 const updateCustomer = catchAsync(async (req: Request, res: Response) => {
@@ -217,6 +254,10 @@ const updateCustomer = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+
+
+
+
 
 
 const deleteUser = catchAsync(async (req, res) => {
@@ -290,5 +331,6 @@ export const userController = {
   deleteUser,
   updateVendorStatus,
   getPublicVendors,
+  updateAdmin
 
 };

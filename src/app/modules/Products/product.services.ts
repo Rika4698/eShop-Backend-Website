@@ -168,7 +168,29 @@ const getAllProducts = async (
         include: {
             category: true,
             vendor: true,
-            reviews: true,
+            reviews: {
+                include: {
+                    customer: true,
+                    ReviewReply:{
+                        include:{
+                          user:true,
+                        },
+                    },
+                        product: {
+                    include: {
+                        vendor: {
+                            select: {
+                                id: true,
+                                name: true,
+                                email: true,
+                                shopName: true,
+                            },
+                        },
+                    },
+                },
+                   
+                },
+            },
         },
     });
 

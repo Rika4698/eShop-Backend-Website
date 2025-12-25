@@ -344,6 +344,8 @@ const getCustomerUser = async (email: string) => {
   return vendor;
 };
 
+
+
 const followVendor = async (payload: { vendorId: string }, user: IAuthUser) => {
   const customer = await prisma.customer.findUnique({
     where: {
@@ -380,6 +382,8 @@ const followVendor = async (payload: { vendorId: string }, user: IAuthUser) => {
 
   return follow;
 };
+
+
 
 const unfollowVendor = async (
   payload: { vendorId: string },
@@ -418,6 +422,8 @@ const unfollowVendor = async (
 
   return unfollow;
 };
+
+
 
 
 const updateCustomer = async (
@@ -461,6 +467,52 @@ const updateCustomer = async (
 
   return result;
 };
+
+
+
+
+const updateAdmin = async (
+  payload: {
+    name?: string;
+    image?: string;
+    address?: string;
+    phone?: string;
+  },
+  files: any,
+  userData: IAuthUser,
+) => {
+  // Check if admin exists
+  const admin = await prisma.admin.findUnique({
+    where: {
+      email: userData?.email,
+      isDeleted: false,
+    },
+  });
+
+  if (!admin) {
+    throw new AppError(StatusCodes.NOT_FOUND, "Admin doesn't exist!");
+  }
+
+  // Handle image upload
+  const image = files?.image?.[0]?.path || "";
+
+  if (image) {
+    payload.image = image;
+  }
+
+  // Update admin data
+  const result = await prisma.admin.update({
+    where: {
+      email: admin.email,
+    },
+    data: payload,
+  });
+
+  return result;
+};
+
+
+
 
 
 //update vendor
@@ -639,25 +691,33 @@ const updateVendorStatus = async (vendorId: string, isDeleted: boolean) => {
 
     const vendor = await prisma.vendor.findUnique({
       where: { id: vendorId },
+      include:{user:true}
     });
 
 
     if (!vendor) {
       throw new Error("Vendor not found");
     }
-
+ 
     
-    const updatedVendor = await prisma.vendor.update({
-      where: { id: vendorId },
-      data: { isDeleted },  
-    });
+    const result = await prisma.$transaction([
+      // Update vendor isDeleted
+      prisma.vendor.update({
+        where: { id: vendorId },
+        data: { isDeleted },
+      }),
+      
+      // Update user status
+      prisma.user.update({
+        where: { email: vendor.email }, // Use email as relation field
+        data: { 
+          status: isDeleted ? 'DELETED' : 'ACTIVE' 
+        },
+      })
+    ]);
 
-    // Check if the update was successful
-    if (updatedVendor.isDeleted !== isDeleted) {
-      console.error("Vendor status update failed");
-    }
-
-    return updatedVendor; 
+    return result[0]; 
+   
   } catch (error) {
     throw error; 
   }
@@ -767,5 +827,6 @@ export const userService = {
   deleteUser,
   updateVendorStatus,
   getPublicVendors,
+  updateAdmin,
   
 };

@@ -109,6 +109,7 @@ const createOrder = async (payload: TOrder, user: IAuthUser) => {
           customerId: customer.id,
           vendorId: vendor.id,
           deliveryAddress: payload.deliveryAddress,
+          phone:payload.phone,
           transactionId: tranId,
           paymentStatus: PaymentStatus.PENDING,
           totalPrice: payload.totalPrice,
@@ -219,6 +220,9 @@ const createOrder = async (payload: TOrder, user: IAuthUser) => {
 
 
 
+
+
+
 // all order
 
 const getAllOrders = async (
@@ -267,6 +271,11 @@ const getAllOrders = async (
       orderDetails: {
         include: {
           product: true,
+        },
+      },
+      couponUsages: {
+        include: {
+           coupon: true,
         },
       },
     },

@@ -3,6 +3,7 @@ model Order {
   customerId      String
   vendorId        String
   deliveryAddress String?
+  phone           String?
   totalPrice      Float
   paymentStatus   PaymentStatus
   transactionId   String        @unique

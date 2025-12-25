@@ -2,6 +2,7 @@ export type TOrder = {
   vendorId: string;
   totalPrice: number;
   deliveryAddress?: string;
+  phone?:string;
   coupon?: string;
   orderDetails: {
     productId: string;
