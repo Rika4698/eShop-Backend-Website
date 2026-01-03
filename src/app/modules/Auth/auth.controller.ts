@@ -11,13 +11,14 @@ import { Request, Response } from "express";
 
 const loginUser = catchAsync(async (req, res) => {
   const result = await AuthServices.loginUser(req.body);
-  const { refreshToken, accessToken } = result;
+  const { refreshToken, accessToken, user } = result;
 
   res.cookie('accessToken', accessToken, {
   httpOnly: true,
   secure: config.NODE_ENV === 'production',
    sameSite: config.NODE_ENV === 'production' ? 'none' : 'lax', 
     maxAge: 24 * 60 * 60 * 1000,
+     path: "/",
 });
 
   res.cookie('refreshToken', refreshToken, {
@@ -25,6 +26,7 @@ const loginUser = catchAsync(async (req, res) => {
     httpOnly: true,
      sameSite: config.NODE_ENV === 'production' ? 'none' : 'lax', 
     maxAge: 24 * 60 * 60 * 1000,
+     path: "/",
   });
 
   sendResponse(res, {
@@ -32,6 +34,11 @@ const loginUser = catchAsync(async (req, res) => {
     success: true,
     message: 'User logged in successfully!',
     data: {
+        user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+      },
       accessToken,
       refreshToken,
     },
