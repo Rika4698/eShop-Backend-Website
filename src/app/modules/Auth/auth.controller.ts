@@ -13,20 +13,20 @@ const loginUser = catchAsync(async (req, res) => {
   const result = await AuthServices.loginUser(req.body);
   const { refreshToken, accessToken, user } = result;
 
-  res.cookie('accessToken', accessToken, {
-  httpOnly: true,
-  secure: config.NODE_ENV === 'production',
-   sameSite: config.NODE_ENV === 'production' ? 'none' : 'lax', 
-    maxAge: 24 * 60 * 60 * 1000,
-     path: "/",
-});
-
-  res.cookie('refreshToken', refreshToken, {
-    secure: config.NODE_ENV === 'production',
+   res.cookie("accessToken", accessToken, {
     httpOnly: true,
-     sameSite: config.NODE_ENV === 'production' ? 'none' : 'lax', 
+    secure: true,
+    sameSite: "none",
     maxAge: 24 * 60 * 60 * 1000,
-     path: "/",
+    path: "/",
+  });
+
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    path: "/",
   });
 
   sendResponse(res, {
