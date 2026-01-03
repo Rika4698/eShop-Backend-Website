@@ -241,7 +241,7 @@ export const createCustomer = async (payload: {
 
 
 const getMyProfile = async (user: IAuthUser) => {
-  const userInfo = await prisma.user.findUniqueOrThrow({
+  const userInfo = await prisma.user.findFirst({
     where: {
       email: user?.email,
       status: UserStatus.ACTIVE,
@@ -253,6 +253,10 @@ const getMyProfile = async (user: IAuthUser) => {
       status: true,
     },
   });
+
+  if (!userInfo) {
+  throw new AppError(StatusCodes.UNAUTHORIZED, "User not found or inactive");
+}
 
   let profileInfo;
 

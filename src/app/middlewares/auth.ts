@@ -16,13 +16,18 @@ const auth = (...roles: string[]) => {
       if (!token) {
         throw new AppError(StatusCodes.UNAUTHORIZED, 'You are not authorized!');
       }
+      console.log(token,"rrrrr")
 
       const decoded = verifyToken(
         token,
         config.JWT_ACCESS_SECRET as string,
       ) as JwtPayload;
 
+      console.log(decoded,"jjjhh");
+
       const { role, email } = decoded;
+
+      console.log(decoded,"jjj");
 
       await prisma.user.findUniqueOrThrow({
         where: {
@@ -36,6 +41,7 @@ const auth = (...roles: string[]) => {
       }
 
       req.user = decoded as JwtPayload;
+      console.log(req.user,"edrftff");
       next();
     } catch (err) {
       next(err);
