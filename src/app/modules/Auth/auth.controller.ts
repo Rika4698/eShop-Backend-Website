@@ -16,13 +16,15 @@ const loginUser = catchAsync(async (req, res) => {
   res.cookie('accessToken', accessToken, {
   httpOnly: true,
   secure: config.NODE_ENV === 'production',
-  sameSite: 'lax',
+   sameSite: config.NODE_ENV === 'production' ? 'none' : 'lax', 
+    maxAge: 24 * 60 * 60 * 1000,
 });
 
   res.cookie('refreshToken', refreshToken, {
     secure: config.NODE_ENV === 'production',
     httpOnly: true,
-    sameSite: 'lax',
+     sameSite: config.NODE_ENV === 'production' ? 'none' : 'lax', 
+    maxAge: 24 * 60 * 60 * 1000,
   });
 
   sendResponse(res, {
