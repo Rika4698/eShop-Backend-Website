@@ -9,7 +9,7 @@ import cookieParser from 'cookie-parser';
 
 const app: Application = express();
 app.use(cors({
-    origin: ['http://localhost:3000', 'https://sandbox.aamarpay.com'],
+    origin: ['http://localhost:3000', 'https://sandbox.aamarpay.com', "https://eshop-frontend-website.vercel.app"],
     credentials: true
 }));
 app.use(cookieParser());
