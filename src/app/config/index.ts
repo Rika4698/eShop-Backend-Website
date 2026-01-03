@@ -18,7 +18,8 @@ export default {
   SIGNATURE_KEY: process.env.SIGNATURE_KEY,
   PAYMENT_URL: process.env.PAYMENT_URL,
   PAYMENT_VERIFY_URL: process.env.PAYMENT_VERIFY_URL,
-  FRONTEND_URL:process.env.FRONTEND_URL,
+  BACKEND_URL: process.env.BACKEND_URL || 'https://eshop-backend-website.onrender.com',
+  FRONTEND_URL:process.env.FRONTEND_URL || 'https://eshop-frontend-website.vercel.app',
   emailSender: {
         EMAIL: process.env.EMAIL,
         APP_PASS: process.env.APP_PASS

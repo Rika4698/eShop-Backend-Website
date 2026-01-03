@@ -10,9 +10,9 @@ export const initiatePayment = async (paymentData: any) => {
       
       //  Remove the status=success parameter
       // Aamarpay automatically adds its own parameters
-      success_url: `http://localhost:5000/api/v1/payments/confirmation?transactionId=${paymentData.transactionId}`,
-      fail_url: `http://localhost:5000/api/v1/payments/confirmation?transactionId=${paymentData.transactionId}`,
-      cancel_url: 'http://localhost:3000/',
+      success_url: `${config.BACKEND_URL}/api/v1/payments/confirmation?transactionId=${paymentData.transactionId}`,
+      fail_url: `${config.BACKEND_URL}/api/v1/payments/confirmation?transactionId=${paymentData.transactionId}`,
+      cancel_url:  `${config.FRONTEND_URL}/`,
       
       amount: paymentData.amount.toFixed(2),
       currency: 'BDT',
