@@ -80,8 +80,8 @@ const createCustomer = catchAsync(async (req, res) => {
 
 const getAllFromDB = async (req: Request, res: Response) => {
  const filters = {
-    searchTerm: req.query.searchTerm as string,
-    role: req.query.role as string,
+    searchTerm: req.query.searchTerm as string  | undefined,
+    role: req.query.role as string | undefined,
   };
   const options = {
     limit: Number(req.query.limit) || 10,
@@ -238,9 +238,9 @@ const updateAdmin = catchAsync(async (req: Request, res: Response) => {
 const updateCustomer = catchAsync(async (req: Request, res: Response) => {
   // req.body directly contains the fields (name, address, phone)
   // No need to parse JSON
-   console.log('📝 Request Body:', req.body);
-  console.log('📸 Request Files:', req.files);
-  console.log('👤 Request User:', req.user);
+  //  console.log('Request Body:', req.body);
+  // console.log('Request Files:', req.files);
+  // console.log('Request User:', req.user);
   const result = await userService.updateCustomer(
     req.body,        // This now contains { name?, address?, phone? }
     req.files,       // Contains the uploaded files
@@ -295,14 +295,14 @@ const updateVendorStatus = catchAsync(async (req, res) => {
 const getPublicVendors = catchAsync(async (req: Request, res: Response) => {
   const filters = {
     searchTerm: req.query.searchTerm as string,
-    limit: Number(req.query.limit) || 12,
+    limit: Number(req.query.limit) || 6,
     page: Number(req.query.page) || 1,
    categoryId: req.query.categoryId && req.query.categoryId !== "null" ? req.query.categoryId as string : undefined,
   };
   // console.log("Filters:", filters);
 
   const result = await userService.getPublicVendors(filters);
- console.log(result);
+//  console.log(result);
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,

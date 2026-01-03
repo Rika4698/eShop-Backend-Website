@@ -164,10 +164,11 @@ const getAllProducts = async (
         orderBy:
             options.sortBy && options.sortOrder
                 ? { [options.sortBy]: options.sortOrder }
-                : { price: "asc" },
+                : { price: "desc" },
         include: {
             category: true,
             vendor: true,
+            orderDetails:true,
             reviews: {
                 include: {
                     customer: true,
@@ -302,7 +303,7 @@ const duplicateProduct = async (productId: string) => {
             id: newSlug,
         },
     });
-    console.log(result);
+    // console.log(result);
     return result;
 };
 

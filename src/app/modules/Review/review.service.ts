@@ -160,8 +160,11 @@ const createReply = async (payload: any, user: IAuthUser) => {
 
 
 
-const getAllReviews = async (query: Record<string, string>, user?: IAuthUser) => {
-   
+const getAllReviews = async (query: any, user?: IAuthUser) => {
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit) || 10;
+    const skip = (page - 1) * limit;
+
     if (query.vendorId && user) {
         const vendor = await prisma.vendor.findUnique({
             where: {
@@ -170,7 +173,6 @@ const getAllReviews = async (query: Record<string, string>, user?: IAuthUser) =>
             },
         });
 
-       
         if (vendor && query.vendorId !== vendor.id) {
             throw new AppError(
                 StatusCodes.FORBIDDEN,
@@ -179,86 +181,78 @@ const getAllReviews = async (query: Record<string, string>, user?: IAuthUser) =>
         }
     }
 
-    if (!query.productId && !query.vendorId) {
-        throw new AppError(
-            StatusCodes.BAD_REQUEST,
-            "Either productId or vendorId must be provided!"
-        );
-    }
+    
+    const isAdminQuery = !query.productId && !query.vendorId;
+
+    let whereCondition: any = {};
 
     if (query.productId) {
         const product = await prisma.product.findUnique({
-            where: {
-                id: query.productId,
-            },
+            where: { id: query.productId },
         });
 
         if (!product) {
             throw new AppError(StatusCodes.NOT_FOUND, "Product doesn't exist!");
         }
 
-        return prisma.review.findMany({
-            where: {
-                productId: query.productId,
-            },
-            include: {
-                product: true,
-                customer: true,
-                vendor: true,
-                ReviewReply: {
-                    where: {
-                        isDeleted: false,
-                    },
-                    include: {
-                        user: true,
-                    },
-                },
-            },
-            orderBy: {
-                createdAt: 'desc',
-            },
-        });
-    }
-
-    if (query.vendorId) {
+        whereCondition.productId = query.productId;
+    } else if (query.vendorId) {
         const vendor = await prisma.vendor.findUnique({
-            where: {
-                id: query.vendorId,
-            },
+            where: { id: query.vendorId },
         });
 
         if (!vendor) {
             throw new AppError(StatusCodes.NOT_FOUND, "Vendor doesn't exist!");
         }
 
-        return prisma.review.findMany({
-            where: {
-                vendorId: query.vendorId,
-            },
-            include: {
-                product: true,
-                customer: true,
-                vendor: true,
-                ReviewReply: {
-                    where: {
-                        isDeleted: false,
-                    },
-                    include: {
-                        user: true,
-                    },
+        whereCondition.vendorId = query.vendorId;
+    }
+    
+    const reviews = await prisma.review.findMany({
+        where: whereCondition,
+        include: {
+            product: true,
+            customer: true,
+            vendor: true,
+            ReviewReply: {
+                where: {
+                    isDeleted: false,
+                },
+                include: {
+                    user: true,
                 },
             },
-            orderBy: {
-                createdAt: 'desc',
-            },
-        });
-    }
+        },
+        orderBy: {
+            createdAt: 'desc',
+        },
+        skip,
+        take: limit,
+    });
+
+    
+    const total = await prisma.review.count({
+        where: whereCondition,
+    });
+
+    return {
+        data: reviews,
+        meta: {
+            total,
+            page,
+            limit,
+            totalPage: Math.ceil(total / limit),
+        },
+    };
 };
 
 
 
+const getCustomerReviews = async (customerId: string, query: Record<string, string>) => {
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit) || 10;
+    const skip = (page - 1) * limit;
 
-const getCustomerReviews = async (customerId: string) => {
     const customer = await prisma.customer.findUnique({
         where: {
             id: customerId,
@@ -269,7 +263,7 @@ const getCustomerReviews = async (customerId: string) => {
         throw new AppError(StatusCodes.NOT_FOUND, "Customer doesn't exist!");
     }
 
-    return prisma.review.findMany({
+    const reviews = await prisma.review.findMany({
         where: {
             customerId: customerId,
         },
@@ -288,7 +282,25 @@ const getCustomerReviews = async (customerId: string) => {
         orderBy: {
             createdAt: 'desc',
         },
+        skip,
+        take: limit,
     });
+
+    const total = await prisma.review.count({
+        where: {
+            customerId: customerId,
+        },
+    });
+
+    return {
+        data: reviews,
+        meta: {
+            total,
+            page,
+            limit,
+            totalPage: Math.ceil(total / limit),
+        },
+    };
 };
 
 

@@ -267,7 +267,11 @@ const getAllOrders = async (
         : { createdAt: 'desc' }, // Changed to show newest first
     include: {
       vendor: true,
-      customer: true,
+      customer: {
+        include: {
+          reviews: true,
+        },
+      },
       orderDetails: {
         include: {
           product: true,

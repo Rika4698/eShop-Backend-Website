@@ -46,6 +46,7 @@ const getAllCategories = async () => {
  * Extract the public_id from a Cloudinary URL
  * @param imageUrl The Cloudinary URL of the image
  */
+
 const extractPublicId = (imageUrl: string): string | null => {
   try {
     const segments = imageUrl.split('/');

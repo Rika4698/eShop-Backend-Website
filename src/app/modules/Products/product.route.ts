@@ -34,6 +34,9 @@ router.get('/all-product', ProductController.getAllProducts);
 //single product
 router.get('/:productId',ProductController.getSingleProduct);
 
+
+
+
 //update product
 router.patch(
   '/:productId',upload.fields([

@@ -66,8 +66,24 @@ const getAllReviews = catchAsync(async (req, res) => {
 
 
 
+const getCustomerReviews = catchAsync(async (req, res) => {
+    const { customerId } = req.params;
+    const query = req.query as Record<string, string>;
+    const result = await ReviewServices.getCustomerReviews(customerId, query);
+    
+    sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        success: true,
+        message: "Customer reviews retrieved successfully!",
+        data: result.data,
+        meta: result.meta,
+    });
+});
+
+
 export const ReviewController = {
     createReview,
     getAllReviews,
     createReply,
+    getCustomerReviews,
 };

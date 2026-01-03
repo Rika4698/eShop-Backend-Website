@@ -13,10 +13,16 @@ const loginUser = catchAsync(async (req, res) => {
   const result = await AuthServices.loginUser(req.body);
   const { refreshToken, accessToken } = result;
 
+  res.cookie('accessToken', accessToken, {
+  httpOnly: true,
+  secure: config.NODE_ENV === 'production',
+  sameSite: 'lax',
+});
+
   res.cookie('refreshToken', refreshToken, {
     secure: config.NODE_ENV === 'production',
     httpOnly: true,
-    sameSite: true,
+    sameSite: 'lax',
   });
 
   sendResponse(res, {
@@ -90,11 +96,31 @@ const resetPassword = catchAsync(async (req, res) => {
 });
 
 
+
+const logoutUser = (req: Request, res: Response) => {
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    sameSite: "lax",
+  });
+
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    sameSite: "lax",
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "Logged out successfully",
+  });
+};
+
+
 export const AuthControllers = {
   loginUser,
   refreshToken,
   changePassword,
   forgotPassword,
   resetPassword,
+  logoutUser,
  
 };

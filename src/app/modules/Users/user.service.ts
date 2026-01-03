@@ -561,8 +561,9 @@ const updateVendor = async (
 // all user (search)
 
 
-const getAllFromDB = async (filters: any, options: any) => {
-  const { limit = 10, page = 1, sortBy = "createdAt", sortOrder = "desc" } = options;
+const getAllFromDB = async (filters: { searchTerm?: string; role?: string },
+  options: { page: number; limit: number }) => {
+  const { page, limit } = options;
   const { searchTerm, role } = filters;
 
   let where: any = {};
@@ -570,11 +571,44 @@ const getAllFromDB = async (filters: any, options: any) => {
   // Search filter
   if (searchTerm && searchTerm.trim() !== "") {
     const term = searchTerm.trim().toLowerCase();
-    where.OR = [
-      { name: { contains: term, mode: "insensitive" } },
-      { email: { contains: term, mode: "insensitive" } },
-      { role: { contains: term, mode: "insensitive" } },
+      where.OR = [
+      {
+        email: {
+          contains: term,
+          mode: "insensitive",
+        },
+      },
     ];
+
+  
+    const upperTerm = term.toUpperCase();
+    if (["ADMIN", "VENDOR", "CUSTOMER"].includes(upperTerm)) {
+      where.OR.push({
+        role: upperTerm,
+      });
+    }
+
+    if (!role || role === "ADMIN") {
+      where.OR.push({
+        admin: {
+          name: { contains: term, mode: "insensitive" },
+        },
+      });
+    }
+    if (!role || role === "VENDOR") {
+      where.OR.push({
+        vendor: {
+          name: { contains: term, mode: "insensitive" },
+        },
+      });
+    }
+    if (!role || role === "CUSTOMER") {
+      where.OR.push({
+        customer: {
+          name: { contains: term, mode: "insensitive" },
+        },
+      });
+    }
   }
 
   // Role filter
@@ -586,11 +620,28 @@ const getAllFromDB = async (filters: any, options: any) => {
     where,
     skip: (page - 1) * limit,
     take: limit,
-    orderBy: { [sortBy]: sortOrder },
-    include: { admin: true, vendor: true, customer: true },
+    orderBy: { createdAt: "desc" },
+    include: { 
+      admin: true, 
+      vendor: {
+        include:{
+          orders:true,
+          products:true,
+          followers:true
+        }
+      }, 
+      customer:  {
+        include:{
+          orders:true,
+          following:true,
+        }
+      }, 
+    
+    },
   });
 
   const totalUsers = await prisma.user.count({ where });
+  // console.log(users);
 
   return {
     data: users,
@@ -727,7 +778,7 @@ const updateVendorStatus = async (vendorId: string, isDeleted: boolean) => {
 
 
 const getPublicVendors = async (filters?: any) => {
-  const { searchTerm, limit = 12, page = 1, categoryId } = filters || {};
+  const { searchTerm, limit = 6, page = 1, categoryId } = filters || {};
 
   let where: any = {
     role: "VENDOR",

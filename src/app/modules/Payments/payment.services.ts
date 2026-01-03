@@ -24,7 +24,7 @@ const confirmationService = async (transactionId: string, status?: string) => {
 
     // Check payment status from gateway response
     const paymentStatus = verifyResponse?.pay_status || verifyResponse?.status;
-    console.log('Payment status from gateway:', paymentStatus);
+    // console.log('Payment status from gateway:', paymentStatus);
 
     // Comprehensive status checking
     const isSuccessful = paymentStatus && 
@@ -67,7 +67,7 @@ const confirmationService = async (transactionId: string, status?: string) => {
               },
             });
 
-            console.log(`Coupon ${order.couponCode} usage recorded for order ${order.id}`);
+            // console.log(`Coupon ${order.couponCode} usage recorded for order ${order.id}`);
           }
         }
 
@@ -76,7 +76,7 @@ const confirmationService = async (transactionId: string, status?: string) => {
 
       message = '🎉 Payment Successful!';
       paymentSuccess = true;
-      console.log('Order updated to PAID:', result.id);
+      // console.log('Order updated to PAID:', result.id);
 
     } else {
       // PAYMENT FAILED 
@@ -103,7 +103,7 @@ const confirmationService = async (transactionId: string, status?: string) => {
           });
         }
 
-        console.log(`Stock restored for failed payment. Order: ${order.id}`);
+        // console.log(`Stock restored for failed payment. Order: ${order.id}`);
 
         return order;
       });

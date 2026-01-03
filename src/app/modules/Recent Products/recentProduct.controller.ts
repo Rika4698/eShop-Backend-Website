@@ -13,7 +13,7 @@ const createRecentProduct = catchAsync(async (req, res) => {
     req.body,
     req.user as IAuthUser,
   );
-console.log(req.body,"body");
+// console.log(req.body,"body");
 
   sendResponse(res, {
     statusCode: StatusCodes.OK,
