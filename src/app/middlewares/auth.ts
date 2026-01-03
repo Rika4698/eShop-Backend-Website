@@ -11,7 +11,7 @@ import { UserStatus } from '@prisma/client';
 const auth = (...roles: string[]) => {
   return async (req: Request & { user?: any }, res: Response, next: NextFunction) => {
     try {
-        const token = req.cookies?.clientAccessToken;
+        const token = req.cookies?.clientAccessToken || req.headers?.clientAccessToken;
 
       if (!token) {
         throw new AppError(StatusCodes.UNAUTHORIZED, 'You are not authorized!');
