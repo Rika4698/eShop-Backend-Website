@@ -5,20 +5,30 @@ import prisma from "../../utils/prisma";
 import { DiscountStatus } from "@prisma/client";
 
 
-
 const createCoupon = async (payload: ICoupon) => {
   if (payload.discountValue <= 0) {
     throw new AppError(
-      StatusCodes.FORBIDDEN,
+      StatusCodes.BAD_REQUEST,
       'Discount value must be greater than 0.',
     );
   }
 
-  const coupon = await prisma.coupon.create({
-    data: payload,
-  });
+  try {
+    const coupon = await prisma.coupon.create({
+      data: payload,
+    });
 
-  return coupon;
+    return coupon;
+  } catch (error: any) {
+    if (error.code === 'P2002' && error.meta?.target?.includes('code')) {
+      throw new AppError(
+        StatusCodes.BAD_REQUEST,
+        'Coupon code already exists!',
+      );
+    }
+
+    throw error;
+  }
 };
 
 
@@ -28,6 +38,9 @@ const getAllCoupons = async () => {
   const activeCoupons = await prisma.coupon.findMany({
     where: {
       isActive: true,
+    },
+    orderBy: {
+      createdAt: "desc", 
     },
   });
 

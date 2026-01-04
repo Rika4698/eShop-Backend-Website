@@ -37,7 +37,15 @@ const createCategory = async (payload:
 
 
 const getAllCategories = async () => {
-  const categories = await prisma.category.findMany();
+  const categories = await prisma.category.findMany({
+    where: {
+      isDeleted: false,
+    },
+     orderBy: {
+      createdAt: "desc",
+    },
+  });
+
   return categories;
 };
 
@@ -93,7 +101,7 @@ const updateCategory = async (
   }
 
   if (payload.label) {
-    updateData.label = payload.label;
+    updateData.label = payload.label ? payload.label : payload.category;
   }
 
   if (newImagePath) {
