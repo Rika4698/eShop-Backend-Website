@@ -11,6 +11,9 @@ export const sendEmail = async (to: string, resetLink: string) => {
       user: config.emailSender.EMAIL,
       pass: config.emailSender.APP_PASS,
     },
+    tls:{
+      rejectUnauthorized:false,
+    }
   });
 
   try {
