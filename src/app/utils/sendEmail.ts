@@ -5,8 +5,8 @@ import config from '../config';
 export const sendEmail = async (to: string, resetLink: string) => {
   const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
+    port: 465,
+    secure: true,
     auth: {
       user: config.emailSender.EMAIL,
       pass: config.emailSender.APP_PASS,
