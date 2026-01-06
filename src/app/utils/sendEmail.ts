@@ -5,15 +5,15 @@ import config from '../config';
 export const sendEmail = async (to: string, resetLink: string) => {
   const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
+    port: 587,
+    secure: false,
     auth: {
       user: config.emailSender.EMAIL,
       pass: config.emailSender.APP_PASS,
     },
-    tls:{
-      rejectUnauthorized:false,
-    }
+    // tls:{
+    //   rejectUnauthorized:false,
+    // }
   });
 
   try {

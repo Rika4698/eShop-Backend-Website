@@ -89,6 +89,9 @@ const getAllRecentProducts = async (user: IAuthUser) => {
   return result;
 };
 
+
+
+
 const deleteRecentView = async (
   payload: { productId: string },
   user: IAuthUser,

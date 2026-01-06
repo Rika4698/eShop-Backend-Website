@@ -8,9 +8,7 @@ const router = express.Router();
 router.post(
   '/create',
   auth(
-    UserRole.SUPER_ADMIN,
-    UserRole.ADMIN,
-    UserRole.VENDOR,
+    
     UserRole.CUSTOMER,
   ),
   RecentProductViewController.createRecentProduct,
@@ -19,9 +17,7 @@ router.post(
 router.get(
   '/all',
   auth(
-    UserRole.SUPER_ADMIN,
-    UserRole.ADMIN,
-    UserRole.VENDOR,
+    
     UserRole.CUSTOMER,
   ),
   RecentProductViewController.getAllRecentViewProducts,
@@ -30,9 +26,7 @@ router.get(
 router.delete(
   '/',
   auth(
-    UserRole.SUPER_ADMIN,
-    UserRole.ADMIN,
-    UserRole.VENDOR,
+  
     UserRole.CUSTOMER,
   ),
   RecentProductViewController.deleteRecentProduct,

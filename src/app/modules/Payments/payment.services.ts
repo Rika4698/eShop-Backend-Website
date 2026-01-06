@@ -24,7 +24,7 @@ const confirmationService = async (transactionId: string, status?: string) => {
 
     // Check payment status from gateway response
     const paymentStatus = verifyResponse?.pay_status || verifyResponse?.status;
-    // console.log('Payment status from gateway:', paymentStatus);
+    console.log('Payment status from gateway:', paymentStatus);
 
     // Comprehensive status checking
     const isSuccessful = paymentStatus && 
@@ -32,6 +32,10 @@ const confirmationService = async (transactionId: string, status?: string) => {
        paymentStatus.toLowerCase() === 'success' ||
        paymentStatus === 'PAID' ||
        paymentStatus === 'Successful');
+
+    const isCancelled = status?.toLowerCase() === 'cancel' || 
+                        paymentStatus?.toLowerCase() === 'cancelled' ||
+                        paymentStatus?.toLowerCase() === 'cancel';
 
     if (isSuccessful) {
       // PAYMENT SUCCESSFUL
@@ -42,7 +46,7 @@ const confirmationService = async (transactionId: string, status?: string) => {
           data: { paymentStatus: 'PAID' },
         });
 
-        // Record coupon usage (but allow reuse)
+        // 2. Record coupon usage if applicable
         if (order.couponCode) {
           const coupon = await tx.coupon.findUnique({
             where: { code: order.couponCode },
@@ -56,7 +60,6 @@ const confirmationService = async (transactionId: string, status?: string) => {
             });
 
             // Create usage record for this specific order
-            // Links CustomerCoupon to Order via orderId
             await tx.customerCoupon.create({
               data: {
                 customerId: order.customerId,
@@ -67,7 +70,7 @@ const confirmationService = async (transactionId: string, status?: string) => {
               },
             });
 
-            // console.log(`Coupon ${order.couponCode} usage recorded for order ${order.id}`);
+            console.log(`Coupon ${order.couponCode} usage recorded for order ${order.id}`);
           }
         }
 
@@ -76,12 +79,11 @@ const confirmationService = async (transactionId: string, status?: string) => {
 
       message = '🎉 Payment Successful!';
       paymentSuccess = true;
-      // console.log('Order updated to PAID:', result.id);
+      console.log('Order updated to PAID:', result.id);
 
-    } else {
-      // PAYMENT FAILED 
+    } else if (isCancelled) {
+      // PAYMENT CANCELLED BY USER
       result = await prisma.$transaction(async (tx) => {
-        // Update order to UNPAID
         const order = await tx.order.update({
           where: { transactionId },
           data: { paymentStatus: 'UNPAID' },
@@ -96,15 +98,42 @@ const confirmationService = async (transactionId: string, status?: string) => {
           await tx.product.update({
             where: { id: detail.productId },
             data: {
-              stockQuantity: {
-                increment: detail.quantity,
-              },
+              stockQuantity: { increment: detail.quantity },
             },
           });
         }
 
-        // console.log(`Stock restored for failed payment. Order: ${order.id}`);
+        console.log(`Payment cancelled. Stock restored for order: ${order.id}`);
+        return order;
+      });
 
+      message = '❌ Payment Cancelled!';
+      paymentSuccess = false;
+      console.log('Payment cancelled by user');
+
+    } else {
+      // PAYMENT FAILED 
+      result = await prisma.$transaction(async (tx) => {
+        const order = await tx.order.update({
+          where: { transactionId },
+          data: { paymentStatus: 'UNPAID' },
+        });
+
+        // Restore product stock
+        const orderDetails = await tx.orderDetail.findMany({
+          where: { orderId: order.id },
+        });
+
+        for (const detail of orderDetails) {
+          await tx.product.update({
+            where: { id: detail.productId },
+            data: {
+              stockQuantity: { increment: detail.quantity },
+            },
+          });
+        }
+
+        console.log(`Stock restored for failed payment. Order: ${order.id}`);
         return order;
       });
 
@@ -128,6 +157,16 @@ const confirmationService = async (transactionId: string, status?: string) => {
           console.log('Payment successful, redirecting in 2 seconds...');
           setTimeout(function() {
             window.location.href = '${frontendUrl}/payment-success?orderId=${result.id}&transactionId=${transactionId}';
+          }, 2000);
+        </script></body>`
+      );
+    } else if (isCancelled) {
+      template = template.replace(
+        '</body>',
+        `<script>
+          console.log('Payment cancelled, redirecting in 2 seconds...');
+          setTimeout(function() {
+            window.location.href = '${frontendUrl}/payment-cancel?transactionId=${transactionId}';
           }, 2000);
         </script></body>`
       );
@@ -165,9 +204,7 @@ const confirmationService = async (transactionId: string, status?: string) => {
           await tx.product.update({
             where: { id: detail.productId },
             data: {
-              stockQuantity: {
-                increment: detail.quantity,
-              },
+              stockQuantity: { increment: detail.quantity },
             },
           });
         }

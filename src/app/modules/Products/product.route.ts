@@ -55,7 +55,7 @@ router.patch(
 
 //duplicate product
 router.post(
-  "/duplicate/:productId",
+  "/duplicate/:productId", auth(UserRole.VENDOR),
   ProductController.duplicateProduct
 );
 
