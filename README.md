@@ -209,6 +209,18 @@ Launch the application in development mode:
 ```node
 npm run dev
 ```
+
+```node
+"prisma": {
+    "schema": "./prisma/schema"
+  },
+  "scripts": {
+    "start": "node ./dist/server.js",
+    "dev": "ts-node-dev --respawn --transpile-only ./src/server.ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    //...more scripts
+  }
+```
 The server will start on `http://localhost:5000` (or the port specified in your `.env` file).
 
 ### Production Mode
@@ -278,10 +290,11 @@ http://localhost:5000/api/v1
 | -------- | ---------------------------------------- | ------------------------------------ | ------------- |
 | `POST`   | `/products/create-product`               | Create product                       | Yes (VENDOR)  |
 | `GET`    | `/products/all-product`                  | Get all products(with search/filters)| No            |
-| `GET`    | `/products/:productId`                   | Get product by ID                    | Yes (VENDOR)  |
+| `GET`    | `/products/:productId`                   | Get product by ID                    | No            |
 | `PATCH`  | `/products/:productId`                   | Update product                       | Yes (VENDOR)  |
 | `POST`   | `/products/duplicate/:productId`         | create duplicate product             | Yes (VENDOR)  |
 | `DELETE` | `/products/:productId`                   | Delete product (when no order)       | Yes (VENDOR)  |
+
 
 ### Recent Products Endpoints
 
@@ -292,36 +305,44 @@ http://localhost:5000/api/v1
 | `DELETE` | `/recent-products`                       |  Delete recent view product          | Yes (CUSTOMER)|
 
 
+### Order Endpoints
+
+| Method   | Endpoint                                 | Description                          | Auth Required  |
+| -------- | ---------------------------------------- | ------------------------------------ | -------------  |
+| `POST`   | `/orders/create-order`                   | Create order                         | Yes (CUSTOMER) |
+| `GET`    | `/orders/all-order`                      | Get all order                        | YES (All roles)|
+| `GET`    | `/orders/transaction/:transactionId`     | Get order transaction Id             | Yes (CUSTOMER) |
+
+
+### Coupon Endpoints
+
+| Method   | Endpoint                                | Description            | Auth Required  |
+| -------- | --------------------------------------- | ---------------------- | -------------  |
+| `POST`   | `/coupons/create-coupon`                | Create coupon          | Yes (ADMIN)    |
+| `GET`    | `/coupons/all`                          | Get all coupon         | Yes (All roles)|
+| `PATCH`  | `/coupons/:couponId`                    | Update each coupon     | Yes (ADMIN)    |
+| `DELETE` | `/coupons/:couponId`                    | Delete coupon          | Yes (ADMIN)    |
 
 
 ### Payment Endpoints
 
 | Method   | Endpoint                 | Description                  | Auth Required         |
 | -------- | ------------------------ | ---------------------------- | --------------------- |
-| `POST`   | `/payment/create-intent` | Create Stripe payment intent | Yes (USER)            |
-| `GET`    | `/payment/:id`           | Get payment by ID            | Yes (USER)            |
-| `GET`    | `/payment/my/payments`   | Get my payments              | Yes (USER)            |
-| `DELETE` | `/payment/:id`           | Cancel unpaid payment        | Yes (USER)            |
-| `POST`   | `/webhook`               | Stripe webhook endpoint      | No (Stripe signature) |
+| `POST`   | `/payments/confirmation` | Create payment confirmation  | No                    |
+| `GET`    | `/payments/confirmation` | Get payment confirmation     | Yes (CUSTOMER)        |
+
+
 
 ### Review Endpoints
 
 | Method | Endpoint                 | Description                    | Auth Required |
 | ------ | ------------------------ | ------------------------------ | ------------- |
-| `POST` | `/review`                | Create review                  | Yes (USER)    |
-| `GET`  | `/review`                | Get all reviews (with filters) | No            |
-| `GET`  | `/review/host/:hostId`   | Get reviews for a host         | No            |
-| `GET`  | `/review/event/:eventId` | Get reviews for an event       | No            |
+| `POST` | `/reviews/create-review` | Create review                  | Yes (CUSTOMER)|
+| `GET`  | `/reviews/all-review`    | Get all reviews                | Yes(All roles)|
+| `GET`  | `/reviews/create-reply`  | Get reviews for an event       | Yes(VENDOR)   |
 
-**Query Parameters for `/review` (GET):**
 
-- `reviewerEmail` - Filter by reviewer email
-- `hostEmail` - Filter by host email
-- `eventId` - Filter by event ID
-- `page` - Page number
-- `limit` - Items per page
-- `sortBy` - Sort field
-- `sortOrder` - Sort order
+
 
 ### Admin Endpoints
 
@@ -336,42 +357,152 @@ http://localhost:5000/api/v1
 | `GET`    | `/admin/statistics/users`  | Get user statistics         | Yes (ADMIN)   |
 | `GET`    | `/admin/statistics/hosts`  | Get host statistics         | Yes (ADMIN)   |
 
-## 🔒 Authentication
+---
 
-### JWT Token Structure
+## 📁 Project Structure
 
-The API uses JWT tokens for authentication. Tokens are stored in HTTP-only cookies.
+```
+eShop-backend-website/
+├─ prisma/
+│  └─ schema/
+|     ├─ migrations/               # Database migrations
+│     ├─ coupon.prisma             # Coupon, customer coupon models
+│     ├─ enum.prisma               # All enums
+│     ├─ follow.prisma             # Follow model
+│     ├─ order.prisma              # Order, Order details models
+│     ├─ product.prisma            # Products, category models
+│     ├─ reviews.prisma            # Review, Review reply models
+│     ├─ schema.prisma
+│     └─ user.prisma               # User, Admin, Vendor,Customer models
+├─ src/
+│  ├─ app/
+│  │  ├─ config/
+│  │  │  ├─ cloudinary.config.ts     # Cloudinary config
+│  │  │  ├─ index.ts                 # Environment config
+│  │  │  └─ multer.config.ts         # Multer storage config
+│  │  ├─ errors/
+│  │  │  └─ appError.ts               # Custom error classes
+│  │  ├─ interface/
+│  │  │  ├─ file.ts
+│  │  │  ├─ index.d.ts
+│  │  │  └─ sendResponseInterface.ts
+│  │  ├─ middlewares/                    # Express middlewares
+│  │  │  ├─ auth.ts                      # JWT authentication
+│  │  │  ├─ globalErrorHandler.ts        # Error handling
+│  │  │  ├─ notFound.ts
+│  │  │  └─ validateRequest.ts            # Auth & validation middleware
+│  │  ├─ modules/                         # Feature modules
+│  │  │  ├─ Auth/                          # Authentication module
+│  │  │  │  ├─ auth.controller.ts
+│  │  │  │  ├─ auth.interface.ts
+│  │  │  │  ├─ auth.route.ts
+│  │  │  │  ├─ auth.services.ts
+│  │  │  │  └─ auth.validation.ts
+│  │  │  ├─ Category/                       # Category management module
+│  │  │  │  ├─ category.controller.ts
+│  │  │  │  ├─ category.route.ts
+│  │  │  │  ├─ category.services.ts
+│  │  │  │  └─ category.validation.ts
+│  │  │  ├─ Coupon/                         # Coupon management module
+│  │  │  │  ├─ coupon.controller.ts
+│  │  │  │  ├─ coupon.interface.ts
+│  │  │  │  ├─ coupon.route.ts
+│  │  │  │  ├─ coupon.service.ts
+│  │  │  │  └─ coupon.validation.ts
+│  │  │  ├─ Orders/                         # Order management module
+│  │  │  │  ├─ order.controller.ts
+│  │  │  │  ├─ order.interface.ts
+│  │  │  │  ├─ order.route.ts
+│  │  │  │  ├─ order.service.ts
+│  │  │  │  └─ order.validation.ts
+│  │  │  ├─ Payments/                       # Payment management module
+│  │  │  │  ├─ payment.controller.ts
+│  │  │  │  ├─ payment.route.ts
+│  │  │  │  └─ payment.services.ts
+│  │  │  ├─ Products/                        # Product management module
+│  │  │  │  ├─ product.constant.ts
+│  │  │  │  ├─ product.controller.ts
+│  │  │  │  ├─ product.interface.ts
+│  │  │  │  ├─ product.route.ts
+│  │  │  │  ├─ product.services.ts
+│  │  │  │  └─ product.validation.ts
+│  │  │  ├─ Recent Products/                  # Recent product view management module
+│  │  │  │  ├─ recentProduct.controller.ts
+│  │  │  │  ├─ recentProduct.route.ts
+│  │  │  │  └─ recentProduct.service.ts
+│  │  │  ├─ Review/                            # Review management module
+│  │  │  │  ├─ review.controller.ts
+│  │  │  │  ├─ review.interface.ts
+│  │  │  │  ├─ review.route.ts
+│  │  │  │  ├─ review.service.ts
+│  │  │  │  └─ review.validation.ts
+│  │  │  └─ Users/                             # User management module
+│  │  │     ├─ user.constant.ts 
+│  │  │     ├─ user.controller.ts
+│  │  │     ├─ user.interface.ts
+│  │  │     ├─ user.route.ts
+│  │  │     ├─ user.service.ts
+│  │  │     └─ user.validation.ts
+│  │  ├─ routes/
+│  │  │  └─ index.ts                     # Route aggregator
+│  │  └─ utils/
+│  │     ├─ calculatePagination.ts       # Pagination utilities
+│  │     ├─ catchAsync.ts                # Async error handler
+│  │     ├─ jwt.ts                        # JWT utilities
+│  │     ├─ payment.ts                    # Aamarpay payment integration
+│  │     ├─ pick.ts
+│  │     ├─ prisma.ts
+│  │     ├─ sendEmail.ts                  # Email sending helper 
+│  │     └─ sendResponse.ts               # Response formatter
+│  ├─ app.ts                               # Express app setup
+│  └─ server.ts                           # Server entry point
+├─ .env                                   # Environment variables
+├─ .env.example                           # Environment template
+├─ .gitignore
+├─ confirmation.html                      # Payment confirmation layout
+├─ package-lock.json
+├─ package.json
+├─ README.md
+└─ tsconfig.json                           # TypeScript configuration
+```
 
-**Access Token:**
+## Module Structure
 
-- Stored in `accessToken` cookie
-- Expires in 1 day (configurable)
-- Contains: `{ email, role }`
+Each module follows a consistent structure:
 
-**Refresh Token:**
+```
+module-name/
+├── module-name.controller.ts    # Request handlers
+├── module-name.service.ts        # Business logic
+├── module-name.routes.ts         # Route definitions
+├── module-name.validation.ts    # Zod validation schemas
+└── module-name.constant.ts      # Constants (if needed)
+```
 
-- Stored in `refreshToken` cookie
-- Expires in 90 days (configurable)
-- Used to generate new access tokens
+## 🧪 Testing
 
-### Authentication Flow
+### Manual Testing with Postman
 
-1. **Login**: `POST /api/v1/auth/login`
+1. **Import Collection**: Create a Postman collection with all endpoints
+2. **Set Base URL**: `http://localhost:5000/api/v1`
+3. **Authentication**:
+   - Login first to get cookies
+   - Postman will automatically include cookies in subsequent requests
 
-   - Returns access and refresh tokens in cookies
-   - Returns `needPasswordChange` flag
+## Code Style Guidelines
 
-2. **Protected Routes**: Include authentication middleware
+- Use TypeScript for type safety
+- Follow the existing module structure
+- Use Zod for validation
+- Handle errors with custom `ApiError` class
+- Use Prisma transactions for multi-step operations
+- Add comments for complex logic
+- Keep functions focused and single-purpose
 
-   - Tokens are automatically read from cookies
-   - Or send `Authorization: Bearer <token>` header
 
-3. **Refresh Token**: `POST /api/v1/auth/refresh-token`
-   - Use when access token expires
-   - Returns new access token
 
-### Role-Based Access Control
+## 👤 Author
 
-- **USER**: Can join events, make payments, write reviews
-- **HOST**: Can create/manage events, view participants, see host stats
-- **ADMIN**: Full access to all endpoints, user/host/event management
+**Sharmin Akter Reka**
+
+---

@@ -30,7 +30,11 @@ export const sendEmail = async (to: string, resetLink: string) => {
           <p>If you did not request this, please ignore this email.</p>
         </div>
       `,
-    });
+       tracking: {
+    opens: false,
+    clicks: false,
+  },
+    } as any );
 
     console.log('✅ Reset email sent successfully via Resend');
   } catch (error) {
